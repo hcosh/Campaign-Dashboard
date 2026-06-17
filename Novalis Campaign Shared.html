@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novalis — Campaign Dashboard</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #faf8f5;
+    color: #2d2416;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Header */
+  .header {
+    background: #1a1208;
+    color: #f0e6d0;
+    padding: 20px 28px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #d4a84b;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: #a89070;
+    margin-top: 3px;
+  }
+  .cliffhanger {
+    margin-top: 12px;
+    background: rgba(212, 168, 75, 0.15);
+    border-left: 3px solid #d4a84b;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #e8d4a0;
+    border-radius: 0 4px 4px 0;
+  }
+  .cliffhanger strong { color: #d4a84b; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #e5ddd0;
+    background: #fff;
+    padding: 0 20px;
+  }
+  .tab {
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #8a7560;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .tab:hover { color: #3d2b0e; }
+  .tab.active {
+    color: #7c3a12;
+    border-bottom-color: #7c3a12;
+  }
+
+  /* Content */
+  .content { padding: 20px; max-width: 900px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Priority badges */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge-immediate { background: #fee2e2; color: #991b1b; }
+  .badge-high      { background: #ffedd5; color: #9a3412; }
+  .badge-medium    { background: #fef9c3; color: #854d0e; }
+  .badge-low       { background: #dcfce7; color: #166534; }
+
+  /* NPC status badges */
+  .badge-ally       { background: #d1fae5; color: #065f46; }
+  .badge-enemy      { background: #fee2e2; color: #991b1b; }
+  .badge-suspicious { background: #fef3c7; color: #92400e; }
+  .badge-unknown    { background: #f1f5f9; color: #475569; }
+  .badge-neutral    { background: #e0e7ff; color: #3730a3; }
+  .badge-employer   { background: #ede9fe; color: #5b21b6; }
+
+  /* Quest filters */
+  .quest-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .filter-btn {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    background: #f5f0e8;
+    color: #6b5c40;
+  }
+  .filter-btn.active { border-color: #7c3a12; background: #7c3a12; color: white; }
+  .filter-btn:hover:not(.active) { background: #ebe5d8; }
+
+  /* Quest cards */
+  .quest-list { display: flex; flex-direction: column; gap: 10px; }
+  .quest-card {
+    background: white;
+    border: 1px solid #e8dfd0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: box-shadow 0.15s;
+  }
+  .quest-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .quest-card.hidden { display: none; }
+  .quest-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+  }
+  .quest-title { font-weight: 600; font-size: 14px; color: #2d2416; }
+  .quest-info  { font-size: 13px; color: #6b5c40; line-height: 1.5; }
+  .quest-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .quest-state-wrap {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .quest-state-label {
+    font-size: 12px;
+    color: #8a7560;
+    font-weight: 600;
+  }
+  .quest-state-select {
+    border: 1px solid #dccfb9;
+    border-radius: 8px;
+    padding: 8px 10px;
+    min-height: 40px;
+    background: #fff;
+    color: #2d2416;
+    font-size: 14px;
+  }
+  .quest-state-active { background: #dcfce7; color: #166534; }
+  .quest-state-blocked { background: #fef3c7; color: #92400e; }
+  .quest-state-completed { background: #dbeafe; color: #1e3a8a; }
+  .quest-state-dropped { background: #f3f4f6; color: #374151; }
+  .quest-note-count {
+    background: #ede9fe;
+    color: #4c1d95;
+  }
+  .quest-notes {
+    margin-top: 10px;
+    border-top: 1px dashed #e8dfd0;
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .quest-note-item {
+    background: #fdfaf4;
+    border: 1px solid #eadfcb;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #4f3f28;
+  }
+  .quest-note-meta {
+    margin-top: 4px;
+    color: #8a7560;
+    font-size: 12px;
+  }
+  .quest-note-actions {
+    margin-top: 6px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .quest-note-action-btn {
+    border: 1px solid #dccfb9;
+    border-radius: 6px;
+    background: #fff;
+    color: #6b4b27;
+    font-size: 12px;
+    padding: 6px 10px;
+    min-height: 32px;
+    cursor: pointer;
+  }
+  .quest-note-action-btn:focus {
+    outline: 2px solid #7c3a12;
+    outline-offset: 1px;
+  }
+
+  /* Notes panel */
+  .notes-layout {
+    display: grid;
+    gap: 16px;
+  }
+  .notes-card {
+    background: #fff;
+    border: 1px solid #e8dfd0;
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .notes-card h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #3f2d12;
+  }
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .notes-search-wrap {
+    margin-top: 10px;
+  }
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .tag-chip {
+    background: #f3e8d8;
+    color: #6a4a23;
+    border: 1px solid #e1cfb1;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .field-label {
+    font-size: 13px;
+    color: #6b5c40;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .notes-input,
+  .notes-select,
+  .notes-textarea,
+  .notes-button {
+    width: 100%;
+    border: 1px solid #dccfb9;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 16px;
+    background: #fff;
+    color: #2d2416;
+  }
+  .notes-textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+  .notes-input:focus,
+  .notes-select:focus,
+  .notes-textarea:focus,
+  .notes-button:focus {
+    outline: 2px solid #7c3a12;
+    outline-offset: 1px;
+  }
+  .notes-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .notes-button {
+    min-height: 44px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .notes-button.primary {
+    background: #7c3a12;
+    color: #fff;
+    border-color: #7c3a12;
+  }
+  .notes-button.ghost {
+    background: #f8f2e8;
+    color: #6b4b27;
+  }
+  .notes-status {
+    min-height: 22px;
+    font-size: 13px;
+    color: #6b5c40;
+  }
+  .notes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .notes-item {
+    border: 1px solid #eadfcb;
+    border-radius: 8px;
+    background: #fdfaf4;
+    padding: 10px 12px;
+  }
+  .notes-item-text {
+    font-size: 14px;
+    color: #3d2f1a;
+    margin-bottom: 6px;
+  }
+  .notes-item-meta {
+    font-size: 12px;
+    color: #8a7560;
+    margin-bottom: 8px;
+  }
+  .notes-inline-controls {
+    display: grid;
+    gap: 8px;
+  }
+  .notes-empty {
+    color: #8a7560;
+    font-size: 13px;
+  }
+  .timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .timeline-item {
+    border: 1px solid #eadfcb;
+    border-left: 4px solid #7c3a12;
+    border-radius: 8px;
+    background: #fff;
+    padding: 10px 12px;
+  }
+  .timeline-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .timeline-item-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #4c3312;
+  }
+  .timeline-item-date {
+    font-size: 12px;
+    color: #8a7560;
+  }
+  .timeline-item-text {
+    font-size: 14px;
+    color: #3d2f1a;
+  }
+
+  @media (min-width: 760px) {
+    .notes-grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+    }
+    .notes-actions {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .notes-inline-controls {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+
+  /* NPC table */
+  .npc-table { width: 100%; border-collapse: collapse; }
+  .npc-table th {
+    text-align: left;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8a7560;
+    border-bottom: 2px solid #e8dfd0;
+  }
+  .npc-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid #f0ebe2;
+    vertical-align: top;
+  }
+  .npc-table tr:hover td { background: #faf8f5; }
+  .npc-name     { font-weight: 600; color: #2d2416; }
+  .npc-role     { color: #6b5c40; font-size: 12px; }
+  .npc-location { color: #8a7560; font-style: italic; font-size: 12px; }
+  .npc-notes    { color: #5c4c35; font-size: 12px; line-height: 1.4; margin-top: 3px; }
+
+  /* Footer */
+  .meta {
+    padding: 10px 20px;
+    font-size: 11px;
+    color: #a89070;
+    border-top: 1px solid #e8dfd0;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <h1>⚔ Novalis — Campaign Dashboard</h1>
+  <div class="subtitle">19 Post-Contact · Current location: Phandalin · Party: Thoren, Xander, Eineas, Milo</div>
+  <div class="cliffhanger">
+    <strong>After Session 6:</strong> Sap zombies repelled at Daran's orchard. Two Redbrands captured and interrogated — Tresendar Manor intel in hand. Daran has agreed to assist the assault. A contaminated Redbrand rose as undead after death.
+  </div>
+</div>
+
+<!-- ── TABS ── -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('quests', this)">⚔ Quests</div>
+  <div class="tab" onclick="switchTab('npcs', this)">👥 NPCs</div>
+  <div class="tab" onclick="switchTab('notes', this)">📝 Notes</div>
+</div>
+
+<div class="content">
+
+  <!-- ══════════════ QUESTS PANEL ══════════════ -->
+  <div id="panel-quests" class="panel active">
+    <div class="quest-filters">
+      <button class="filter-btn active" onclick="filterQuests('all', this)">All</button>
+      <button class="filter-btn" onclick="filterQuests('immediate', this)">🔴 Immediate</button>
+      <button class="filter-btn" onclick="filterQuests('high', this)">🟠 High</button>
+      <button class="filter-btn" onclick="filterQuests('medium', this)">🟡 Medium</button>
+      <button class="filter-btn" onclick="filterQuests('low', this)">🟢 Low</button>
+    </div>
+    <div class="quest-list">
+
+      <div class="quest-card" data-priority="immediate" data-quest-id="storm-tresendar-manor">
+        <div class="quest-card-header">
+          <span class="quest-title">Storm Tresendar Manor</span>
+          <span class="badge badge-immediate">Immediate</span>
+        </div>
+        <div class="quest-info">~30 Redbrands + bugbear reinforcements. Glasstaff leads from the cellars. Prisoners held below. Aberrant monster lurks in a crevasse. Daran Edermath has agreed to assist.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="storm-tresendar-manor">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="high" data-quest-id="the-black-spider">
+        <div class="quest-card-header">
+          <span class="quest-title">The Black Spider</span>
+          <span class="badge badge-high">High</span>
+        </div>
+        <div class="quest-info">Hired the Redbrands to lock down Phandalin and control prospecting. Identity unknown. Likely connected to Glasstaff and the race for Wave Echo Cave.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="the-black-spider">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="high" data-quest-id="rescue-gundren-rockseeker">
+        <div class="quest-card-header">
+          <span class="quest-title">Rescue Gundren Rockseeker</span>
+          <span class="badge badge-high">High</span>
+        </div>
+        <div class="quest-info">Held at Cragmaw Castle (location unknown). His map to Wave Echo Cave was taken. Someone in Phandalin may know where the castle is.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="rescue-gundren-rockseeker">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="high" data-quest-id="wave-echo-cave">
+        <div class="quest-card-header">
+          <span class="quest-title">Wave Echo Cave</span>
+          <span class="badge badge-high">High</span>
+        </div>
+        <div class="quest-info">Long-lost cave of immense value. Gundren's stolen map is the key. Multiple factions are competing for it — including the Black Spider.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="wave-echo-cave">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="high" data-quest-id="glasstaff">
+        <div class="quest-card-header">
+          <span class="quest-title">Glasstaff</span>
+          <span class="badge badge-high">High</span>
+        </div>
+        <div class="quest-info">Wizard commanding the Redbrands from Tresendar cellars. Hired by the Black Spider. True identity unknown — possibly Iarno Albrek?</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="glasstaff">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="high" data-quest-id="iarno-albrek">
+        <div class="quest-card-header">
+          <span class="quest-title">Iarno Albrek</span>
+          <span class="badge badge-high">High</span>
+        </div>
+        <div class="quest-info">Helldivers Club wizard, Sildar's contact. Disappeared in Phandalin 2 months ago. May be the same person as Glasstaff.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="iarno-albrek">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="medium" data-quest-id="banshee-at-conyberry">
+        <div class="quest-card-header">
+          <span class="quest-title">Banshee at Conyberry</span>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="quest-info">Sister Garaele's quest. The banshee holds knowledge of an old astronomical text sought by the Living Shadow himself. Divine aid with the Redbrands is the reward.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="banshee-at-conyberry">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="medium" data-quest-id="sap-zombie-source">
+        <div class="quest-card-header">
+          <span class="quest-title">Sap Zombie Source</span>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="quest-info">Daran's orchard is still contaminated. The party promised to investigate the source in exchange for his help with the manor assault. Origin somewhere north of the orchard.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="sap-zombie-source">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="medium" data-quest-id="aberrant-monster-in-crevasse">
+        <div class="quest-card-header">
+          <span class="quest-title">Aberrant Monster in Crevasse</span>
+          <span class="badge badge-medium">Medium</span>
+        </div>
+        <div class="quest-info">Below Tresendar Manor, drawn to a magical source of unknown nature. Will be encountered during the manor assault.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="aberrant-monster-in-crevasse">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="quest-card" data-priority="low" data-quest-id="orcish-raiders-triboar-trail">
+        <div class="quest-card-header">
+          <span class="quest-title">Orcish Raiders — Triboar Trail</span>
+          <span class="badge badge-low">Low</span>
+        </div>
+        <div class="quest-info">Harassing prospectors east of the Triboar Trail. Mayor Harbin Wester wants them dealt with. Connected to the Wyvern Tor orc camp.</div>
+        <div class="quest-state-wrap">
+          <span class="quest-state-label">Status</span>
+          <select class="quest-state-select" data-quest-state-for="orcish-raiders-triboar-trail">
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+            <option value="completed">Completed</option>
+            <option value="dropped">Dropped</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ NPCS PANEL ══════════════ -->
+  <div id="panel-npcs" class="panel">
+    <table class="npc-table">
+      <thead>
+        <tr>
+          <th>Name &amp; Role</th>
+          <th>Status</th>
+          <th>Where</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="npc-name">Sildar Hallwinter</div>
+            <div class="npc-role">Human bodyguard · Helldivers Club</div>
+            <div class="npc-notes">Rescued from Cragmaw Cave. Wants to find Iarno Albrek and establish a Club outpost.</div>
+          </td>
+          <td><span class="badge badge-ally">Ally</span></td>
+          <td class="npc-location">Phandalin</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Daran Edermath</div>
+            <div class="npc-role">Retired orcish adventurer · Orchard keeper</div>
+            <div class="npc-notes">Will help assault Tresendar Manor. Orchard contaminated by sap zombies.</div>
+          </td>
+          <td><span class="badge badge-ally">Ally</span></td>
+          <td class="npc-location">Phandalin (orchard)</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Gundren Rockseeker</div>
+            <div class="npc-role">Dwarven miner · Employer</div>
+            <div class="npc-notes">Held captive at Cragmaw Castle. His map to Wave Echo Cave was taken.</div>
+          </td>
+          <td><span class="badge badge-employer">Captive</span></td>
+          <td class="npc-location">Cragmaw Castle</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Sister Garaele</div>
+            <div class="npc-role">Cleric of the Living Shadow</div>
+            <div class="npc-notes">Quest-giver for the Conyberry banshee. Offered divine assistance with the Redbrand problem.</div>
+          </td>
+          <td><span class="badge badge-neutral">Quest-giver</span></td>
+          <td class="npc-location">Phandalin (Shrine)</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Halia Thornton</div>
+            <div class="npc-role">Runs the Miner's Exchange</div>
+            <div class="npc-notes">Telepathic. Redbrands leave her alone. Possible Veil connection. Offered 150 GP + regional maps to deal with the Redbrands.</div>
+          </td>
+          <td><span class="badge badge-suspicious">Suspicious</span></td>
+          <td class="npc-location">Phandalin</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">The Black Spider</div>
+            <div class="npc-role">Unknown villain</div>
+            <div class="npc-notes">Hired the Redbrands and Cragmaw bugbears to control Phandalin. Wants Wave Echo Cave. Identity completely unknown.</div>
+          </td>
+          <td><span class="badge badge-enemy">Enemy</span></td>
+          <td class="npc-location">Unknown</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Glasstaff</div>
+            <div class="npc-role">Wizard · Redbrand leader</div>
+            <div class="npc-notes">Commands ~30 Redbrands from Tresendar cellars. Hired by the Black Spider. True identity unknown — possibly Iarno Albrek.</div>
+          </td>
+          <td><span class="badge badge-enemy">Enemy</span></td>
+          <td class="npc-location">Tresendar Manor (cellars)</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Iarno Albrek</div>
+            <div class="npc-role">Wizard · Helldivers Club</div>
+            <div class="npc-notes">Sildar's contact in Phandalin. Vanished 2 months ago. Strong suspicion he is Glasstaff.</div>
+          </td>
+          <td><span class="badge badge-unknown">Unknown</span></td>
+          <td class="npc-location">Missing</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Harbin Wester</div>
+            <div class="npc-role">Mayor of Phandalin</div>
+            <div class="npc-notes">Ineffectual. Has done little about the Redbrands. Wants orc raiders dealt with.</div>
+          </td>
+          <td><span class="badge badge-neutral">Neutral</span></td>
+          <td class="npc-location">Phandalin</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="npc-name">Krag</div>
+            <div class="npc-role">Bugbear · Former Cragmaw outpost leader</div>
+            <div class="npc-notes">Released in exchange for Sildar's life. Could resurface as an enemy.</div>
+          </td>
+          <td><span class="badge badge-enemy">Enemy?</span></td>
+          <td class="npc-location">Unknown (fled into woods)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ══════════════ NOTES PANEL ══════════════ -->
+  <div id="panel-notes" class="panel">
+    <div class="notes-layout">
+      <section class="notes-card">
+        <h2>Session Notes</h2>
+        <div class="notes-grid">
+          <div>
+            <label class="field-label" for="note-session">Session Label (optional)</label>
+            <input id="note-session" class="notes-input" type="text" placeholder="Session 7, downtime, travel day, etc.">
+          </div>
+          <div>
+            <label class="field-label" for="note-quest">Assign Quest (optional)</label>
+            <select id="note-quest" class="notes-select">
+              <option value="auto">Auto-detect from note text</option>
+              <option value="unassigned">Keep unassigned</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <label class="field-label" for="note-tags">Tags (optional, comma-separated)</label>
+          <input id="note-tags" class="notes-input" type="text" placeholder="combat, clue, lore, npc">
+        </div>
+        <div class="notes-search-wrap">
+          <label class="field-label" for="note-search">Search Notes</label>
+          <input id="note-search" class="notes-input" type="text" placeholder="Search notes, tags, session labels, and quests">
+        </div>
+        <div style="margin-top: 10px;">
+          <label class="field-label" for="note-text">Note</label>
+          <textarea id="note-text" class="notes-textarea" placeholder="Example: Captured two Redbrands and learned Glasstaff uses the hidden cellar passage."></textarea>
+        </div>
+        <div class="notes-actions" style="margin-top: 12px;">
+          <button id="save-note" class="notes-button primary" type="button">Save Note</button>
+          <button id="export-notes" class="notes-button ghost" type="button">Export Notes JSON</button>
+          <button id="import-notes" class="notes-button ghost" type="button">Import Notes JSON</button>
+        </div>
+        <input id="import-notes-file" type="file" accept="application/json" style="display:none;">
+        <div id="notes-status" class="notes-status" aria-live="polite"></div>
+      </section>
+
+      <section class="notes-card">
+        <h2>Unassigned Notes</h2>
+        <div id="unassigned-list" class="notes-list">
+          <div class="notes-empty">Unassigned notes will appear here.</div>
+        </div>
+      </section>
+
+      <section class="notes-card">
+        <h2>Session Timeline</h2>
+        <div id="timeline-list" class="timeline-list">
+          <div class="notes-empty">Saved notes will appear in timeline order.</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<div class="meta">Novalis · Session 6 complete · 19 Post-Contact</div>
+
+<script>
+  const STORAGE_KEY = 'novalis_dashboard_notes_v1';
+  const STORAGE_VERSION = 1;
+  const QUEST_STATE_STORAGE_KEY = 'novalis_dashboard_quest_states_v1';
+  const QUEST_STATE_OPTIONS = ['active', 'blocked', 'completed', 'dropped'];
+
+  const QUEST_DEFINITIONS = [
+    { id: 'storm-tresendar-manor', title: 'Storm Tresendar Manor', keywords: ['tresendar', 'manor', 'redbrand', 'cellar', 'assault', 'prisoner'] },
+    { id: 'the-black-spider', title: 'The Black Spider', keywords: ['black spider', 'spider', 'villain', 'mastermind'] },
+    { id: 'rescue-gundren-rockseeker', title: 'Rescue Gundren Rockseeker', keywords: ['gundren', 'rockseeker', 'cragmaw castle', 'rescue'] },
+    { id: 'wave-echo-cave', title: 'Wave Echo Cave', keywords: ['wave echo', 'cave', 'map', 'mine'] },
+    { id: 'glasstaff', title: 'Glasstaff', keywords: ['glasstaff', 'staff', 'wizard', 'iarno'] },
+    { id: 'iarno-albrek', title: 'Iarno Albrek', keywords: ['iarno', 'albrek', 'club wizard', 'missing wizard'] },
+    { id: 'banshee-at-conyberry', title: 'Banshee at Conyberry', keywords: ['banshee', 'conyberry', 'garaele', 'astronomical text'] },
+    { id: 'sap-zombie-source', title: 'Sap Zombie Source', keywords: ['sap zombie', 'orchard', 'contamination', 'daran'] },
+    { id: 'aberrant-monster-in-crevasse', title: 'Aberrant Monster in Crevasse', keywords: ['aberrant', 'crevasse', 'monster', 'below manor'] },
+    { id: 'orcish-raiders-triboar-trail', title: 'Orcish Raiders — Triboar Trail', keywords: ['orc', 'raider', 'triboar', 'wyvern tor'] }
+  ];
+
+  let notesState = { version: STORAGE_VERSION, notes: [] };
+  let questStates = {};
+  let noteSearchTerm = '';
+
+  function switchTab(name, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function filterQuests(priority, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.quest-card').forEach(card => {
+      const match = priority === 'all' || card.dataset.priority === priority;
+      card.classList.toggle('hidden', !match);
+    });
+  }
+
+  function questById(id) {
+    return QUEST_DEFINITIONS.find(q => q.id === id) || null;
+  }
+
+  function labelForQuest(id) {
+    const quest = questById(id);
+    return quest ? quest.title : 'Unassigned';
+  }
+
+  function normalizeText(value) {
+    return (value || '').toLowerCase();
+  }
+
+  function migrateNotes(raw) {
+    if (Array.isArray(raw)) {
+      return {
+        version: STORAGE_VERSION,
+        notes: raw.map(item => ({
+          id: item.id || 'legacy-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+          text: String(item.text || ''),
+          createdAt: item.createdAt || new Date().toISOString(),
+          sessionLabel: item.sessionLabel || '',
+          tags: Array.isArray(item.tags) ? item.tags.map(tag => String(tag).trim()).filter(Boolean) : [],
+          assignedQuestId: item.assignedQuestId || null,
+          assignmentSource: item.assignmentSource || 'unassigned',
+          assignmentConfidence: item.assignmentConfidence || 'low'
+        }))
+      };
+    }
+
+    if (!raw || typeof raw !== 'object') {
+      return { version: STORAGE_VERSION, notes: [] };
+    }
+
+    const notes = Array.isArray(raw.notes) ? raw.notes : [];
+    return {
+      version: STORAGE_VERSION,
+      notes: notes.map(item => ({
+        id: item.id || 'legacy-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+        text: String(item.text || ''),
+        createdAt: item.createdAt || new Date().toISOString(),
+        sessionLabel: item.sessionLabel || '',
+        tags: Array.isArray(item.tags) ? item.tags.map(tag => String(tag).trim()).filter(Boolean) : [],
+        assignedQuestId: questById(item.assignedQuestId) ? item.assignedQuestId : null,
+        assignmentSource: item.assignmentSource || 'unassigned',
+        assignmentConfidence: item.assignmentConfidence || 'low'
+      }))
+    };
+  }
+
+  function loadNotes() {
+    try {
+      const serialized = localStorage.getItem(STORAGE_KEY);
+      if (!serialized) return;
+      const parsed = JSON.parse(serialized);
+      notesState = migrateNotes(parsed);
+    } catch (err) {
+      notesState = { version: STORAGE_VERSION, notes: [] };
+      setStatus('Notes data could not be read. Starting with a clean note list.');
+    }
+  }
+
+  function saveNotes() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notesState));
+  }
+
+  function loadQuestStates() {
+    try {
+      const raw = localStorage.getItem(QUEST_STATE_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      if (!parsed || typeof parsed !== 'object') {
+        questStates = {};
+        return;
+      }
+      questStates = {};
+      Object.keys(parsed).forEach(questId => {
+        const value = String(parsed[questId] || '').toLowerCase();
+        if (QUEST_STATE_OPTIONS.includes(value)) {
+          questStates[questId] = value;
+        }
+      });
+    } catch (err) {
+      questStates = {};
+    }
+  }
+
+  function saveQuestStates() {
+    localStorage.setItem(QUEST_STATE_STORAGE_KEY, JSON.stringify(questStates));
+  }
+
+  function parseTags(rawTags) {
+    if (!rawTags) return [];
+    return rawTags
+      .split(',')
+      .map(tag => tag.trim().toLowerCase())
+      .filter(Boolean)
+      .filter((tag, index, list) => list.indexOf(tag) === index);
+  }
+
+  function noteMatchesSearch(note) {
+    const term = normalizeText(noteSearchTerm).trim();
+    if (!term) return true;
+
+    const questLabel = labelForQuest(note.assignedQuestId);
+    const haystack = [
+      note.text,
+      note.sessionLabel,
+      questLabel,
+      (note.tags || []).join(' ')
+    ].join(' ');
+
+    return normalizeText(haystack).includes(term);
+  }
+
+  function renderTagList(tags) {
+    if (!Array.isArray(tags) || !tags.length) return '';
+    return '<div class="tag-list">' + tags.map(tag => '<span class="tag-chip">#' + escapeHtml(tag) + '</span>').join('') + '</div>';
+  }
+
+  function autoAssignQuest(noteText, selectedQuestValue) {
+    if (selectedQuestValue && selectedQuestValue !== 'auto') {
+      if (selectedQuestValue === 'unassigned') {
+        return { questId: null, source: 'manual', confidence: 'low' };
+      }
+      return { questId: selectedQuestValue, source: 'manual', confidence: 'high' };
+    }
+
+    const normalizedNote = normalizeText(noteText);
+
+    const titleMatch = QUEST_DEFINITIONS.find(quest => normalizedNote.includes(normalizeText(quest.title)));
+    if (titleMatch) {
+      return { questId: titleMatch.id, source: 'title', confidence: 'high' };
+    }
+
+    let bestMatch = null;
+    let bestScore = 0;
+    let tie = false;
+
+    QUEST_DEFINITIONS.forEach(quest => {
+      const score = quest.keywords.reduce((count, keyword) => {
+        return count + (normalizedNote.includes(normalizeText(keyword)) ? 1 : 0);
+      }, 0);
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = quest;
+        tie = false;
+      } else if (score > 0 && score === bestScore) {
+        tie = true;
+      }
+    });
+
+    if (bestMatch && !tie) {
+      return {
+        questId: bestMatch.id,
+        source: 'keyword',
+        confidence: bestScore > 1 ? 'high' : 'medium'
+      };
+    }
+
+    return { questId: null, source: 'unassigned', confidence: 'low' };
+  }
+
+  function formatDate(isoDate) {
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) return 'Unknown date';
+    return date.toLocaleString();
+  }
+
+  function setStatus(message) {
+    const statusEl = document.getElementById('notes-status');
+    if (statusEl) {
+      statusEl.textContent = message;
+    }
+  }
+
+  function renderQuestNotes() {
+    document.querySelectorAll('.quest-card').forEach(card => {
+      const questId = card.dataset.questId;
+      const noteItems = notesState.notes
+        .filter(note => note.assignedQuestId === questId)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const visibleItems = noteItems.filter(noteMatchesSearch);
+
+      const header = card.querySelector('.quest-card-header');
+      const priorityBadge = header.querySelector('.badge:not(.quest-note-count)');
+      let meta = header.querySelector('.quest-meta');
+      let noteBadge = header.querySelector('.quest-note-count');
+
+      if (!meta) {
+        meta = document.createElement('span');
+        meta.className = 'quest-meta';
+        if (priorityBadge) {
+          header.removeChild(priorityBadge);
+          meta.appendChild(priorityBadge);
+        }
+        header.appendChild(meta);
+      }
+
+      if (!noteBadge) {
+        noteBadge = document.createElement('span');
+        noteBadge.className = 'badge quest-note-count';
+        meta.appendChild(noteBadge);
+      }
+
+      noteBadge.textContent = noteItems.length + (noteItems.length === 1 ? ' note' : ' notes');
+
+      let stateBadge = meta.querySelector('.quest-state-badge');
+      if (!stateBadge) {
+        stateBadge = document.createElement('span');
+        stateBadge.className = 'badge quest-state-badge';
+        meta.appendChild(stateBadge);
+      }
+      const state = questStates[questId] || 'active';
+      stateBadge.className = 'badge quest-state-badge quest-state-' + state;
+      stateBadge.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+
+      let notesContainer = card.querySelector('.quest-notes');
+      if (!notesContainer) {
+        notesContainer = document.createElement('div');
+        notesContainer.className = 'quest-notes';
+        card.appendChild(notesContainer);
+      }
+
+      if (!visibleItems.length) {
+        notesContainer.innerHTML = '';
+        notesContainer.style.display = 'none';
+        return;
+      }
+
+      notesContainer.style.display = 'flex';
+      notesContainer.innerHTML = visibleItems.slice(0, 3).map(note => {
+        const session = note.sessionLabel ? ' • ' + note.sessionLabel : '';
+        return (
+          '<div class="quest-note-item">' +
+            '<div>' + escapeHtml(note.text) + '</div>' +
+            '<div class="quest-note-meta">' + escapeHtml(formatDate(note.createdAt) + session) + '</div>' +
+            renderTagList(note.tags) +
+            '<div class="quest-note-actions">' +
+              '<button class="quest-note-action-btn" type="button" data-unassign-note-id="' + note.id + '">Unassign</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+
+      notesContainer.querySelectorAll('[data-unassign-note-id]').forEach(button => {
+        button.addEventListener('click', function() {
+          const noteId = button.getAttribute('data-unassign-note-id');
+          const target = notesState.notes.find(note => note.id === noteId);
+          if (!target) return;
+          target.assignedQuestId = null;
+          target.assignmentSource = 'manual';
+          target.assignmentConfidence = 'low';
+          saveNotes();
+          renderAllNotes();
+          setStatus('Note moved to Unassigned.');
+        });
+      });
+    });
+  }
+
+  function renderUnassignedNotes() {
+    const list = document.getElementById('unassigned-list');
+    if (!list) return;
+
+    const unassigned = notesState.notes
+      .filter(note => !note.assignedQuestId)
+      .filter(noteMatchesSearch)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!unassigned.length) {
+      list.innerHTML = '<div class="notes-empty">No unassigned notes. Nice work.</div>';
+      return;
+    }
+
+    list.innerHTML = unassigned.map(note => {
+      const options = ['<option value="">Reassign to quest...</option>']
+        .concat(QUEST_DEFINITIONS.map(quest => '<option value="' + quest.id + '">' + escapeHtml(quest.title) + '</option>'))
+        .join('');
+
+      const context = [formatDate(note.createdAt), note.sessionLabel].filter(Boolean).join(' • ');
+
+      return (
+        '<div class="notes-item" data-note-id="' + note.id + '">' +
+          '<div class="notes-item-text">' + escapeHtml(note.text) + '</div>' +
+          '<div class="notes-item-meta">' + escapeHtml(context || 'No session label') + '</div>' +
+          renderTagList(note.tags) +
+          '<div class="notes-inline-controls">' +
+            '<select class="notes-select reassign-select">' + options + '</select>' +
+            '<button class="notes-button ghost reassign-button" type="button">Assign</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    list.querySelectorAll('.reassign-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const row = button.closest('.notes-item');
+        const noteId = row.dataset.noteId;
+        const selected = row.querySelector('.reassign-select').value;
+        if (!selected) {
+          setStatus('Choose a quest before assigning.');
+          return;
+        }
+
+        const target = notesState.notes.find(note => note.id === noteId);
+        if (!target) return;
+        target.assignedQuestId = selected;
+        target.assignmentSource = 'manual';
+        target.assignmentConfidence = 'high';
+        saveNotes();
+        renderAllNotes();
+        setStatus('Note reassigned to ' + labelForQuest(selected) + '.');
+      });
+    });
+  }
+
+  function renderTimeline() {
+    const list = document.getElementById('timeline-list');
+    if (!list) return;
+
+    const items = notesState.notes
+      .filter(noteMatchesSearch)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!items.length) {
+      list.innerHTML = '<div class="notes-empty">No timeline matches for this search yet.</div>';
+      return;
+    }
+
+    list.innerHTML = items.slice(0, 50).map(note => {
+      return (
+        '<div class="timeline-item">' +
+          '<div class="timeline-item-head">' +
+            '<div class="timeline-item-title">' + escapeHtml(labelForQuest(note.assignedQuestId)) + '</div>' +
+            '<div class="timeline-item-date">' + escapeHtml(formatDate(note.createdAt)) + '</div>' +
+          '</div>' +
+          '<div class="notes-item-meta">' + escapeHtml((note.sessionLabel || 'No session label') + ' • ' + note.assignmentSource) + '</div>' +
+          '<div class="timeline-item-text">' + escapeHtml(note.text) + '</div>' +
+          renderTagList(note.tags) +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function syncQuestStateControls() {
+    document.querySelectorAll('[data-quest-state-for]').forEach(select => {
+      const questId = select.getAttribute('data-quest-state-for');
+      const state = questStates[questId] || 'active';
+      select.value = state;
+    });
+  }
+
+  function wireQuestStateEvents() {
+    document.querySelectorAll('[data-quest-state-for]').forEach(select => {
+      select.addEventListener('change', function() {
+        const questId = select.getAttribute('data-quest-state-for');
+        const value = String(select.value || '').toLowerCase();
+        if (!QUEST_STATE_OPTIONS.includes(value)) return;
+        questStates[questId] = value;
+        saveQuestStates();
+        renderQuestNotes();
+        setStatus('Updated quest state: ' + labelForQuest(questId) + ' -> ' + value + '.');
+      });
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function populateQuestSelect() {
+    const select = document.getElementById('note-quest');
+    if (!select) return;
+
+    QUEST_DEFINITIONS.forEach(quest => {
+      const option = document.createElement('option');
+      option.value = quest.id;
+      option.textContent = quest.title;
+      select.appendChild(option);
+    });
+  }
+
+  function handleSaveNote() {
+    const textEl = document.getElementById('note-text');
+    const sessionEl = document.getElementById('note-session');
+    const questEl = document.getElementById('note-quest');
+    const tagsEl = document.getElementById('note-tags');
+
+    const text = textEl.value.trim();
+    if (!text) {
+      setStatus('Write a note before saving.');
+      return;
+    }
+
+    const sessionLabel = sessionEl.value.trim();
+    const tags = parseTags(tagsEl.value);
+    const selectedQuest = questEl.value;
+    const assignment = autoAssignQuest(text, selectedQuest);
+
+    notesState.notes.push({
+      id: 'note-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+      text: text,
+      createdAt: new Date().toISOString(),
+      sessionLabel: sessionLabel,
+      tags: tags,
+      assignedQuestId: assignment.questId,
+      assignmentSource: assignment.source,
+      assignmentConfidence: assignment.confidence
+    });
+
+    saveNotes();
+    renderAllNotes();
+    textEl.value = '';
+    tagsEl.value = '';
+    questEl.value = 'auto';
+    setStatus('Saved note to ' + labelForQuest(assignment.questId) + ' (' + assignment.source + ' match).');
+  }
+
+  function validateImportedPayload(payload) {
+    const migrated = migrateNotes(payload);
+    if (!Array.isArray(migrated.notes)) {
+      throw new Error('Invalid notes data.');
+    }
+    return migrated;
+  }
+
+  function exportNotes() {
+    const blob = new Blob([JSON.stringify(notesState, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'novalis-notes-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setStatus('Notes exported.');
+  }
+
+  function importNotesFromFile(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function() {
+      try {
+        const parsed = JSON.parse(String(reader.result || '{}'));
+        notesState = validateImportedPayload(parsed);
+        saveNotes();
+        renderAllNotes();
+        setStatus('Imported ' + notesState.notes.length + ' notes.');
+      } catch (err) {
+        setStatus('Import failed: invalid JSON format.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function renderAllNotes() {
+    renderQuestNotes();
+    renderUnassignedNotes();
+    renderTimeline();
+  }
+
+  function wireNotesEvents() {
+    const saveBtn = document.getElementById('save-note');
+    const exportBtn = document.getElementById('export-notes');
+    const importBtn = document.getElementById('import-notes');
+    const importInput = document.getElementById('import-notes-file');
+    const searchInput = document.getElementById('note-search');
+
+    if (saveBtn) saveBtn.addEventListener('click', handleSaveNote);
+    if (exportBtn) exportBtn.addEventListener('click', exportNotes);
+    if (importBtn) {
+      importBtn.addEventListener('click', function() {
+        importInput.click();
+      });
+    }
+    if (importInput) {
+      importInput.addEventListener('change', function() {
+        const file = importInput.files && importInput.files[0] ? importInput.files[0] : null;
+        importNotesFromFile(file);
+        importInput.value = '';
+      });
+    }
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        noteSearchTerm = searchInput.value || '';
+        renderAllNotes();
+      });
+    }
+  }
+
+  populateQuestSelect();
+  loadNotes();
+  loadQuestStates();
+  syncQuestStateControls();
+  wireQuestStateEvents();
+  wireNotesEvents();
+  renderAllNotes();
+</script>
+
+</body>
+</html>
