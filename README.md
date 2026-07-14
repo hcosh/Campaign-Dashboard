@@ -37,6 +37,61 @@ Saved notes appear in three places:
 
 You can unassign a wrongly attached note directly from the quest card, then reassign it from **Unassigned Notes**.
 
+## DM Recaps
+
+Use the **Recaps** tab to process full DM session recaps.
+
+- Add `Session Label` and optional `In-World Date`.
+- Paste recap text and click `Process Recap`.
+- Optional routing markers at the start of a line:
+   - `Quest:`
+   - `NPC:`
+   - `Lore:`
+   - `Timeline:`
+
+Routing priority:
+
+1. Marker-based routing
+2. Exact quest/NPC match
+3. Keyword scoring
+4. Fallback to **Review Queue**
+
+Low-confidence or unmatched recap fragments are placed in **Review Queue**, where you can:
+
+- Assign to quest
+- Add to lore with a selected category
+- Send to timeline
+- Discard
+
+NPC-matched recap updates appear as short recap update blocks in the NPC panel.
+
+## Lore Codex
+
+Use the **Lore** tab for reference entries and imports.
+
+- Categories:
+   - Religion
+   - History
+   - Factions
+   - Locations
+   - Organizations
+   - Items
+   - Events
+   - Customs/Culture
+- Add entries manually with title, category, tags, and body.
+- Search supports title, body, category, tags, source, and linked entities.
+
+### Lore Import
+
+- `Import Lore` accepts `.txt`, `.md`, and `.json`.
+- Text/markdown imports are chunked and category-inferred.
+- Low-confidence imports are sent to **Review Queue**.
+- JSON imports must be valid lore payloads.
+
+### Lore Export
+
+- `Export Lore` downloads all lore entries as JSON backup.
+
 ## Quest States
 
 Each quest has a status selector in the **Quests** tab:
@@ -67,6 +122,10 @@ In the **Notes** tab:
 - `Import Notes JSON` restores from an export file.
 
 Recommended: export after every session as a backup.
+
+Also recommended:
+
+- Export lore JSON after major world-building updates.
 
 ## Suggested Session Flow
 
