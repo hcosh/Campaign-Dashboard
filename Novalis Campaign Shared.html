@@ -405,6 +405,26 @@
     display: grid;
     gap: 10px;
   }
+  .recap-list {
+    display: grid;
+    gap: 10px;
+  }
+  .recap-item {
+    border: 1px solid #eadfcb;
+    border-radius: 8px;
+    background: #fff;
+    padding: 12px;
+  }
+  .recap-item-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4c3312;
+  }
+  .recap-item-preview {
+    font-size: 13px;
+    color: #4f3f28;
+    margin-top: 6px;
+  }
   .lore-item {
     border: 1px solid #eadfcb;
     border-radius: 8px;
@@ -425,6 +445,13 @@
     font-size: 14px;
     color: #3d2f1a;
     white-space: pre-wrap;
+  }
+  .lore-item-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 10px;
+    flex-wrap: wrap;
   }
   .npc-update {
     margin-top: 6px;
@@ -883,6 +910,13 @@
           <div class="notes-empty">No uncertain recap fragments yet.</div>
         </div>
       </section>
+
+      <section class="notes-card">
+        <h2>Recent Recaps</h2>
+        <div id="recent-recaps-list" class="recap-list">
+          <div class="notes-empty">Processed recaps will appear here.</div>
+        </div>
+      </section>
     </div>
   </div>
 
@@ -900,6 +934,12 @@
             <label class="field-label" for="lore-category-filter">Category</label>
             <select id="lore-category-filter" class="notes-select">
               <option value="all">All Categories</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="lore-npc-filter">Linked NPC</label>
+            <select id="lore-npc-filter" class="notes-select">
+              <option value="all">All NPCs</option>
             </select>
           </div>
           <div class="notes-actions" style="grid-template-columns: 1fr 1fr;">
@@ -923,6 +963,20 @@
             <select id="lore-category" class="notes-select"></select>
           </div>
         </div>
+        <div class="notes-grid" style="margin-top: 10px;">
+          <div>
+            <label class="field-label" for="lore-related-quest">Linked Quest</label>
+            <select id="lore-related-quest" class="notes-select">
+              <option value="">No linked quest</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="lore-related-npc">Linked NPC</label>
+            <select id="lore-related-npc" class="notes-select">
+              <option value="">No linked NPC</option>
+            </select>
+          </div>
+        </div>
         <div style="margin-top: 10px;">
           <label class="field-label" for="lore-tags">Tags (comma-separated)</label>
           <input id="lore-tags" class="notes-input" type="text" placeholder="religion, phandalin, shrine">
@@ -933,7 +987,9 @@
         </div>
         <div class="notes-actions" style="margin-top: 12px;">
           <button id="save-lore" class="notes-button primary" type="button">Save Lore</button>
+          <button id="cancel-lore-edit" class="notes-button ghost" type="button" style="display:none;">Cancel Edit</button>
         </div>
+        <input id="lore-edit-id" type="hidden" value="">
       </section>
 
       <section class="notes-card">
@@ -998,6 +1054,7 @@
   let reviewQueueState = { version: 1, items: [] };
   let loreSearchTerm = '';
   let loreCategoryFilter = 'all';
+  let loreNpcFilter = 'all';
   let npcRecapUpdates = {};
 
   function switchTab(name, el) {
@@ -1210,6 +1267,10 @@
 
   function getNpcNames() {
     return Array.from(document.querySelectorAll('.npc-name')).map(el => el.textContent.trim()).filter(Boolean);
+  }
+
+  function npcNameFromId(id) {
+    return getNpcNames().find(name => normalizeNpcId(name) === id) || id || '';
   }
 
   function normalizeNpcId(name) {
@@ -1592,10 +1653,16 @@
   function populateLoreCategorySelectors() {
     const addSelect = document.getElementById('lore-category');
     const filterSelect = document.getElementById('lore-category-filter');
-    if (!addSelect || !filterSelect) return;
+    const npcFilterSelect = document.getElementById('lore-npc-filter');
+    const relatedQuestSelect = document.getElementById('lore-related-quest');
+    const relatedNpcSelect = document.getElementById('lore-related-npc');
+    if (!addSelect || !filterSelect || !npcFilterSelect || !relatedQuestSelect || !relatedNpcSelect) return;
 
     addSelect.innerHTML = '';
     filterSelect.innerHTML = '<option value="all">All Categories</option>';
+    npcFilterSelect.innerHTML = '<option value="all">All NPCs</option>';
+    relatedQuestSelect.innerHTML = '<option value="">No linked quest</option>';
+    relatedNpcSelect.innerHTML = '<option value="">No linked NPC</option>';
 
     LORE_CATEGORIES.forEach(category => {
       const opt1 = document.createElement('option');
@@ -1608,10 +1675,35 @@
       opt2.textContent = category;
       filterSelect.appendChild(opt2);
     });
+
+    QUEST_DEFINITIONS.forEach(quest => {
+      const option = document.createElement('option');
+      option.value = quest.id;
+      option.textContent = quest.title;
+      relatedQuestSelect.appendChild(option);
+    });
+
+    getNpcNames().forEach(name => {
+      const npcId = normalizeNpcId(name);
+
+      const filterOption = document.createElement('option');
+      filterOption.value = npcId;
+      filterOption.textContent = name;
+      npcFilterSelect.appendChild(filterOption);
+
+      const relatedOption = document.createElement('option');
+      relatedOption.value = npcId;
+      relatedOption.textContent = name;
+      relatedNpcSelect.appendChild(relatedOption);
+    });
   }
 
   function loreMatchesFilters(entry) {
     if (loreCategoryFilter !== 'all' && entry.category !== loreCategoryFilter) {
+      return false;
+    }
+
+    if (loreNpcFilter !== 'all' && !(entry.relatedNpcIds || []).includes(loreNpcFilter)) {
       return false;
     }
 
@@ -1648,18 +1740,73 @@
 
     list.innerHTML = items.map(entry => {
       const relatedQuests = (entry.relatedQuestIds || []).map(labelForQuest).filter(name => name !== 'Unassigned');
-      const relatedNpcs = (entry.relatedNpcIds || []).filter(Boolean);
+      const relatedNpcs = (entry.relatedNpcIds || []).map(npcNameFromId).filter(Boolean);
       const relatedBits = [];
       if (relatedQuests.length) relatedBits.push('Quests: ' + relatedQuests.join(', '));
       if (relatedNpcs.length) relatedBits.push('NPCs: ' + relatedNpcs.join(', '));
 
       return (
-        '<div class="lore-item">' +
+        '<div class="lore-item" data-lore-id="' + entry.id + '">' +
           '<div class="lore-item-title">' + escapeHtml(entry.title) + '</div>' +
           '<div class="lore-item-meta">' + escapeHtml(entry.category + ' • ' + (entry.source || 'manual') + ' • ' + formatDate(entry.updatedAt)) + '</div>' +
           '<div class="lore-item-body">' + escapeHtml(entry.body) + '</div>' +
           renderTagList(entry.tags) +
           (relatedBits.length ? '<div class="lore-item-meta">' + escapeHtml(relatedBits.join(' • ')) + '</div>' : '') +
+          '<div class="lore-item-actions">' +
+            '<button class="notes-button ghost lore-edit-button" type="button">Edit</button>' +
+            '<button class="notes-button ghost lore-delete-button" type="button">Delete</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    list.querySelectorAll('.lore-edit-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const container = button.closest('[data-lore-id]');
+        const entry = loreState.entries.find(item => item.id === container.dataset.loreId);
+        if (!entry) return;
+        populateLoreForm(entry);
+        setLoreStatus('Editing lore entry: ' + entry.title);
+      });
+    });
+
+    list.querySelectorAll('.lore-delete-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const container = button.closest('[data-lore-id]');
+        loreState.entries = loreState.entries.filter(item => item.id !== container.dataset.loreId);
+        saveLore();
+        resetLoreForm();
+        renderAll();
+        setLoreStatus('Lore entry deleted.');
+      });
+    });
+  }
+
+  function renderRecentRecaps() {
+    const list = document.getElementById('recent-recaps-list');
+    if (!list) return;
+
+    const items = recapsState.recaps
+      .slice()
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 6);
+
+    if (!items.length) {
+      list.innerHTML = '<div class="notes-empty">Processed recaps will appear here.</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(recap => {
+      const routedCount = (recap.routes || []).filter(route => route.targetType !== 'review').length;
+      const queuedCount = (recap.routes || []).filter(route => route.targetType === 'review').length;
+      const preview = recap.text.length > 220 ? recap.text.slice(0, 220) + '...' : recap.text;
+      const label = [recap.sessionLabel || 'No session', recap.inWorldDate].filter(Boolean).join(' • ');
+
+      return (
+        '<div class="recap-item">' +
+          '<div class="recap-item-title">' + escapeHtml(label || 'Processed recap') + '</div>' +
+          '<div class="lore-item-meta">' + escapeHtml(formatDate(recap.createdAt) + ' • ' + routedCount + ' routed • ' + queuedCount + ' queued') + '</div>' +
+          '<div class="recap-item-preview">' + escapeHtml(preview) + '</div>' +
         '</div>'
       );
     }).join('');
@@ -1968,42 +2115,124 @@
   }
 
   function saveLoreEntry() {
+    const editIdEl = document.getElementById('lore-edit-id');
     const titleEl = document.getElementById('lore-title');
     const categoryEl = document.getElementById('lore-category');
+    const relatedQuestEl = document.getElementById('lore-related-quest');
+    const relatedNpcEl = document.getElementById('lore-related-npc');
     const tagsEl = document.getElementById('lore-tags');
     const bodyEl = document.getElementById('lore-body');
 
-    if (!titleEl || !categoryEl || !bodyEl || !tagsEl) return;
+    if (!editIdEl || !titleEl || !categoryEl || !relatedQuestEl || !relatedNpcEl || !bodyEl || !tagsEl) return;
 
     const title = titleEl.value.trim();
     const body = bodyEl.value.trim();
     const category = categoryEl.value;
+    const relatedQuestId = relatedQuestEl.value || '';
+    const relatedNpcId = relatedNpcEl.value || '';
 
     if (!title || !body) {
       setLoreStatus('Lore title and text are required.');
       return;
     }
 
-    loreState.entries.push({
-      id: 'lore-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+    const payload = {
       title: title,
       body: body,
       category: LORE_CATEGORIES.includes(category) ? category : 'History',
       tags: parseTags(tagsEl.value),
       source: 'manual',
-      relatedQuestIds: [],
-      relatedNpcIds: [],
-      createdAt: new Date().toISOString(),
+      relatedQuestIds: relatedQuestId ? [relatedQuestId] : [],
+      relatedNpcIds: relatedNpcId ? [relatedNpcId] : [],
       updatedAt: new Date().toISOString()
+    };
+
+    if (editIdEl.value) {
+      const target = loreState.entries.find(entry => entry.id === editIdEl.value);
+      if (!target) {
+        setLoreStatus('Could not find lore entry to update.');
+        return;
+      }
+      target.title = payload.title;
+      target.body = payload.body;
+      target.category = payload.category;
+      target.tags = payload.tags;
+      target.relatedQuestIds = payload.relatedQuestIds;
+      target.relatedNpcIds = payload.relatedNpcIds;
+      target.updatedAt = payload.updatedAt;
+      saveLore();
+      renderAll();
+      resetLoreForm();
+      setLoreStatus('Lore entry updated.');
+      return;
+    }
+
+    loreState.entries.push({
+      id: 'lore-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+      title: payload.title,
+      body: payload.body,
+      category: payload.category,
+      tags: payload.tags,
+      source: payload.source,
+      relatedQuestIds: payload.relatedQuestIds,
+      relatedNpcIds: payload.relatedNpcIds,
+      createdAt: new Date().toISOString(),
+      updatedAt: payload.updatedAt
     });
 
     saveLore();
     renderAll();
 
-    titleEl.value = '';
-    bodyEl.value = '';
-    tagsEl.value = '';
+    resetLoreForm();
     setLoreStatus('Lore entry saved.');
+  }
+
+  function populateLoreForm(entry) {
+    const editIdEl = document.getElementById('lore-edit-id');
+    const titleEl = document.getElementById('lore-title');
+    const categoryEl = document.getElementById('lore-category');
+    const questEl = document.getElementById('lore-related-quest');
+    const npcEl = document.getElementById('lore-related-npc');
+    const tagsEl = document.getElementById('lore-tags');
+    const bodyEl = document.getElementById('lore-body');
+    const saveBtn = document.getElementById('save-lore');
+    const cancelBtn = document.getElementById('cancel-lore-edit');
+
+    if (!editIdEl || !titleEl || !categoryEl || !questEl || !npcEl || !tagsEl || !bodyEl || !saveBtn || !cancelBtn) return;
+
+    editIdEl.value = entry.id;
+    titleEl.value = entry.title || '';
+    categoryEl.value = entry.category || 'History';
+    questEl.value = (entry.relatedQuestIds && entry.relatedQuestIds[0]) || '';
+    npcEl.value = (entry.relatedNpcIds && entry.relatedNpcIds[0]) || '';
+    tagsEl.value = (entry.tags || []).join(', ');
+    bodyEl.value = entry.body || '';
+    saveBtn.textContent = 'Update Lore';
+    cancelBtn.style.display = '';
+  }
+
+  function resetLoreForm() {
+    const editIdEl = document.getElementById('lore-edit-id');
+    const titleEl = document.getElementById('lore-title');
+    const categoryEl = document.getElementById('lore-category');
+    const questEl = document.getElementById('lore-related-quest');
+    const npcEl = document.getElementById('lore-related-npc');
+    const tagsEl = document.getElementById('lore-tags');
+    const bodyEl = document.getElementById('lore-body');
+    const saveBtn = document.getElementById('save-lore');
+    const cancelBtn = document.getElementById('cancel-lore-edit');
+
+    if (!editIdEl || !titleEl || !categoryEl || !questEl || !npcEl || !tagsEl || !bodyEl || !saveBtn || !cancelBtn) return;
+
+    editIdEl.value = '';
+    titleEl.value = '';
+    categoryEl.value = 'Religion';
+    questEl.value = '';
+    npcEl.value = '';
+    tagsEl.value = '';
+    bodyEl.value = '';
+    saveBtn.textContent = 'Save Lore';
+    cancelBtn.style.display = 'none';
   }
 
   function renderQuestNotes() {
@@ -2305,6 +2534,7 @@
     renderLoreEntries();
     renderReviewQueue();
     renderNpcRecapUpdates();
+    renderRecentRecaps();
   }
 
   function wireNotesEvents() {
@@ -2316,7 +2546,9 @@
     const processRecapBtn = document.getElementById('process-recap');
     const loreSearchInput = document.getElementById('lore-search');
     const loreCategoryFilterEl = document.getElementById('lore-category-filter');
+    const loreNpcFilterEl = document.getElementById('lore-npc-filter');
     const saveLoreBtn = document.getElementById('save-lore');
+    const cancelLoreEditBtn = document.getElementById('cancel-lore-edit');
     const importLoreBtn = document.getElementById('import-lore');
     const exportLoreBtn = document.getElementById('export-lore');
     const importLoreInput = document.getElementById('import-lore-file');
@@ -2360,8 +2592,22 @@
       });
     }
 
+    if (loreNpcFilterEl) {
+      loreNpcFilterEl.addEventListener('change', function() {
+        loreNpcFilter = loreNpcFilterEl.value || 'all';
+        renderLoreEntries();
+      });
+    }
+
     if (saveLoreBtn) {
       saveLoreBtn.addEventListener('click', saveLoreEntry);
+    }
+
+    if (cancelLoreEditBtn) {
+      cancelLoreEditBtn.addEventListener('click', function() {
+        resetLoreForm();
+        setLoreStatus('Lore edit canceled.');
+      });
     }
 
     if (importLoreBtn && importLoreInput) {
@@ -2393,6 +2639,7 @@
   syncQuestStateControls();
   wireQuestStateEvents();
   wireNotesEvents();
+  resetLoreForm();
   renderAll();
 </script>
 

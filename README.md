@@ -65,6 +65,8 @@ Low-confidence or unmatched recap fragments are placed in **Review Queue**, wher
 
 NPC-matched recap updates appear as short recap update blocks in the NPC panel.
 
+Processed recaps are also listed in **Recent Recaps** with routed and queued counts for quick review.
+
 ## Lore Codex
 
 Use the **Lore** tab for reference entries and imports.
@@ -78,8 +80,10 @@ Use the **Lore** tab for reference entries and imports.
    - Items
    - Events
    - Customs/Culture
-- Add entries manually with title, category, tags, and body.
+- Add entries manually with title, category, tags, body, optional linked quest, and optional linked NPC.
+- Existing lore entries can be edited or deleted directly from the lore list.
 - Search supports title, body, category, tags, source, and linked entities.
+- Filters support category and linked NPC.
 
 ### Lore Import
 
