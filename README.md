@@ -131,6 +131,48 @@ Also recommended:
 
 - Export lore JSON after major world-building updates.
 
+## Shared Campaign JSON (Repo Sync)
+
+Use repository sync to share campaign state with other people using this dashboard.
+
+### Files
+
+- Shared file in repo root: `campaign-shared.json`
+
+### In-app controls
+
+In the **Recaps** tab under **Campaign Sync (Shared JSON)**:
+
+- `Export Shared JSON`: exports all shared dashboard state as `campaign-shared.json`.
+- `Import Shared JSON`: imports a shared campaign bundle from disk.
+- `Load Repo JSON`: loads `campaign-shared.json` from the current folder via HTTP.
+
+### What is included in shared campaign JSON
+
+- Quest states
+- Notes
+- Lore entries
+- Recaps
+- Review queue
+
+### Team workflow
+
+1. Everyone pulls latest repo changes:
+   ```bash
+   git pull
+   ```
+2. DM or editor updates dashboard and clicks `Export Shared JSON`.
+3. Replace the repo file with the exported `campaign-shared.json`.
+4. Commit and push:
+   ```bash
+   git add campaign-shared.json "Novalis Campaign Shared.html" README.md
+   git commit -m "Update shared campaign state"
+   git push
+   ```
+5. Other users pull and click `Load Repo JSON` to sync locally.
+
+Note: `Load Repo JSON` requires running from a local server (for example `python3 -m http.server 8080`), not opening the HTML directly from Finder.
+
 ## Suggested Session Flow
 
 1. Update quest states at the start of prep.

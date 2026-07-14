@@ -29,13 +29,11 @@
     color: #d4a84b;
   }
   .header .subtitle {
-    font-size: 13px;
     color: #a89070;
     margin-top: 3px;
   }
   .cliffhanger {
     margin-top: 12px;
-    background: rgba(212, 168, 75, 0.15);
     border-left: 3px solid #d4a84b;
     padding: 10px 14px;
     font-size: 13px;
@@ -453,6 +451,27 @@
     margin-top: 10px;
     flex-wrap: wrap;
   }
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .overview-stat {
+    border: 1px solid #eadfcb;
+    border-radius: 8px;
+    background: #fff;
+    padding: 10px 12px;
+  }
+  .overview-stat-label {
+    font-size: 12px;
+    color: #8a7560;
+  }
+  .overview-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #4c3312;
+  }
   .npc-update {
     margin-top: 6px;
     border-left: 3px solid #d4a84b;
@@ -518,15 +537,16 @@
 <!-- ── HEADER ── -->
 <div class="header">
   <h1>⚔ Novalis — Campaign Dashboard</h1>
-  <div class="subtitle">19 Post-Contact · Current location: Phandalin · Party: Thoren, Xander, Eineas, Milo</div>
+  <div id="header-subtitle" class="subtitle">19 Post-Contact · Current location: Phandalin · Party: Thoren, Xander, Eineas, Milo</div>
   <div class="cliffhanger">
-    <strong>After Session 6:</strong> Sap zombies repelled at Daran's orchard. Two Redbrands captured and interrogated — Tresendar Manor intel in hand. Daran has agreed to assist the assault. A contaminated Redbrand rose as undead after death.
+    <strong id="header-session-marker">After Session 6:</strong> <span id="header-cliffhanger-text">Sap zombies repelled at Daran's orchard. Two Redbrands captured and interrogated — Tresendar Manor intel in hand. Daran has agreed to assist the assault. A contaminated Redbrand rose as undead after death.</span>
   </div>
 </div>
 
 <!-- ── TABS ── -->
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('quests', this)">⚔ Quests</div>
+  <div class="tab active" onclick="switchTab('overview', this)">🏠 Overview</div>
+  <div class="tab" onclick="switchTab('quests', this)">⚔ Quests</div>
   <div class="tab" onclick="switchTab('npcs', this)">👥 NPCs</div>
   <div class="tab" onclick="switchTab('notes', this)">📝 Notes</div>
   <div class="tab" onclick="switchTab('recaps', this)">📜 Recaps</div>
@@ -535,8 +555,54 @@
 
 <div class="content">
 
+  <!-- ══════════════ OVERVIEW PANEL ══════════════ -->
+  <div id="panel-overview" class="panel active">
+    <section class="notes-card">
+      <h2>Quick Look</h2>
+      <div class="overview-grid">
+        <div class="overview-stat">
+          <div class="overview-stat-label">Current Session</div>
+          <div id="overview-current-session" class="overview-stat-value">-</div>
+        </div>
+        <div class="overview-stat">
+          <div class="overview-stat-label">Active Quests</div>
+          <div id="overview-active-quests" class="overview-stat-value">0</div>
+        </div>
+        <div class="overview-stat">
+          <div class="overview-stat-label">Unassigned Notes</div>
+          <div id="overview-unassigned-notes" class="overview-stat-value">0</div>
+        </div>
+        <div class="overview-stat">
+          <div class="overview-stat-label">Review Queue</div>
+          <div id="overview-review-queue" class="overview-stat-value">0</div>
+        </div>
+      </div>
+
+      <div class="panel-layout">
+        <section class="notes-card">
+          <h2>Latest Recap</h2>
+          <div id="overview-latest-recap" class="notes-empty">No recap processed yet.</div>
+        </section>
+
+        <section class="notes-card">
+          <h2>Top Active Quests</h2>
+          <div id="overview-active-quest-list" class="notes-list">
+            <div class="notes-empty">No active quests found.</div>
+          </div>
+        </section>
+
+        <section class="notes-card">
+          <h2>Latest Lore</h2>
+          <div id="overview-lore-list" class="notes-list">
+            <div class="notes-empty">No lore entries yet.</div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+
   <!-- ══════════════ QUESTS PANEL ══════════════ -->
-  <div id="panel-quests" class="panel active">
+  <div id="panel-quests" class="panel">
     <div class="quest-filters">
       <button class="filter-btn active" onclick="filterQuests('all', this)">All</button>
       <button class="filter-btn" onclick="filterQuests('immediate', this)">🔴 Immediate</button>
@@ -900,8 +966,21 @@
         </div>
         <div class="notes-actions" style="margin-top: 12px;">
           <button id="process-recap" class="notes-button primary" type="button">Process Recap</button>
+          <button id="cancel-recap-edit" class="notes-button ghost" type="button" style="display:none;">Cancel Edit</button>
         </div>
+        <input id="recap-edit-id" type="hidden" value="">
         <div id="recap-status" class="notes-status" aria-live="polite"></div>
+
+        <div style="margin-top: 14px; border-top: 1px dashed #e8dfd0; padding-top: 12px;">
+          <label class="field-label">Campaign Sync (Shared JSON)</label>
+          <div class="notes-actions" style="grid-template-columns: 1fr 1fr 1fr;">
+            <button id="export-campaign-json" class="notes-button ghost" type="button">Export Shared JSON</button>
+            <button id="import-campaign-json" class="notes-button ghost" type="button">Import Shared JSON</button>
+            <button id="load-repo-campaign-json" class="notes-button ghost" type="button">Load Repo JSON</button>
+          </div>
+          <input id="import-campaign-json-file" type="file" accept="application/json" style="display:none;">
+          <div id="campaign-sync-status" class="notes-status" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="notes-card">
@@ -1013,6 +1092,8 @@
   const RECAP_STORAGE_KEY = 'novalis_dashboard_recaps_v1';
   const LORE_STORAGE_KEY = 'novalis_dashboard_lore_v1';
   const REVIEW_QUEUE_STORAGE_KEY = 'novalis_dashboard_review_queue_v1';
+  const CAMPAIGN_SHARED_SCHEMA_VERSION = 1;
+  const CAMPAIGN_SHARED_FILE_NAME = 'campaign-shared.json';
   const LORE_CATEGORIES = ['Religion', 'History', 'Factions', 'Locations', 'Organizations', 'Items', 'Events', 'Customs/Culture'];
 
   const QUEST_DEFINITIONS = [
@@ -1056,6 +1137,7 @@
   let loreCategoryFilter = 'all';
   let loreNpcFilter = 'all';
   let npcRecapUpdates = {};
+  let currentSessionNumber = 6;
 
   function switchTab(name, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1077,7 +1159,8 @@
     const map = {
       notes: 'notes-status',
       recaps: 'recap-status',
-      lore: 'lore-status'
+      lore: 'lore-status',
+      campaign: 'campaign-sync-status'
     };
     const target = map[panelName] || map.notes;
     const el = document.getElementById(target);
@@ -1095,6 +1178,42 @@
 
   function normalizeText(value) {
     return (value || '').toLowerCase();
+  }
+
+  function extractSessionNumber(value) {
+    const text = String(value || '').trim();
+    if (/^\d+$/.test(text)) {
+      return Number(text);
+    }
+    const match = text.match(/session\s*(\d+)/i);
+    return match ? Number(match[1]) : null;
+  }
+
+  function inferCurrentSessionNumber() {
+    const sessions = recapsState.recaps
+      .map(recap => extractSessionNumber(recap.sessionLabel))
+      .filter(num => Number.isFinite(num));
+    if (!sessions.length) {
+      return currentSessionNumber || 6;
+    }
+    return Math.max.apply(null, sessions);
+  }
+
+  function updateHeaderFromRecaps() {
+    const sessionMarkerEl = document.getElementById('header-session-marker');
+    const cliffhangerTextEl = document.getElementById('header-cliffhanger-text');
+    if (!sessionMarkerEl || !cliffhangerTextEl) return;
+
+    currentSessionNumber = inferCurrentSessionNumber();
+    sessionMarkerEl.textContent = 'After Session ' + currentSessionNumber + ':';
+
+    const latestRecap = recapsState.recaps
+      .slice()
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+
+    if (latestRecap && latestRecap.text) {
+      cliffhangerTextEl.textContent = latestRecap.text.length > 260 ? latestRecap.text.slice(0, 260) + '...' : latestRecap.text;
+    }
   }
 
   function migrateNotes(raw) {
@@ -1263,6 +1382,10 @@
 
   function setLoreStatus(message) {
     statusByPanel('lore', message);
+  }
+
+  function setCampaignStatus(message) {
+    statusByPanel('campaign', message);
   }
 
   function getNpcNames() {
@@ -1834,13 +1957,80 @@
       const label = [recap.sessionLabel || 'No session', recap.inWorldDate].filter(Boolean).join(' • ');
 
       return (
-        '<div class="recap-item">' +
+        '<div class="recap-item" data-recap-id="' + recap.id + '">' +
           '<div class="recap-item-title">' + escapeHtml(label || 'Processed recap') + '</div>' +
           '<div class="lore-item-meta">' + escapeHtml(formatDate(recap.createdAt) + ' • ' + routedCount + ' routed • ' + queuedCount + ' queued') + '</div>' +
           '<div class="recap-item-preview">' + escapeHtml(preview) + '</div>' +
+          '<div class="lore-item-actions">' +
+            '<button class="notes-button ghost recap-edit-button" type="button">Edit</button>' +
+          '</div>' +
         '</div>'
       );
     }).join('');
+
+    list.querySelectorAll('.recap-edit-button').forEach(button => {
+      button.addEventListener('click', function() {
+        const row = button.closest('[data-recap-id]');
+        const recap = recapsState.recaps.find(item => item.id === row.dataset.recapId);
+        if (!recap) return;
+        populateRecapForm(recap);
+        setRecapStatus('Editing recap: ' + (recap.sessionLabel || 'No session label'));
+      });
+    });
+  }
+
+  function renderOverview() {
+    const currentSessionEl = document.getElementById('overview-current-session');
+    const activeQuestsEl = document.getElementById('overview-active-quests');
+    const unassignedNotesEl = document.getElementById('overview-unassigned-notes');
+    const reviewQueueEl = document.getElementById('overview-review-queue');
+    const latestRecapEl = document.getElementById('overview-latest-recap');
+    const activeQuestListEl = document.getElementById('overview-active-quest-list');
+    const latestLoreEl = document.getElementById('overview-lore-list');
+
+    if (!currentSessionEl || !activeQuestsEl || !unassignedNotesEl || !reviewQueueEl || !latestRecapEl || !activeQuestListEl || !latestLoreEl) return;
+
+    const activeQuestCount = Object.values(questStates).filter(state => state === 'active').length;
+    const unassignedCount = notesState.notes.filter(note => !note.assignedQuestId).length;
+    const reviewCount = reviewQueueState.items.length;
+    const latestRecap = recapsState.recaps.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    const latestLore = loreState.entries.slice().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)).slice(0, 3);
+
+    currentSessionEl.textContent = String(inferCurrentSessionNumber());
+    activeQuestsEl.textContent = String(activeQuestCount);
+    unassignedNotesEl.textContent = String(unassignedCount);
+    reviewQueueEl.textContent = String(reviewCount);
+
+    if (!latestRecap) {
+      latestRecapEl.innerHTML = '<div class="notes-empty">No recap processed yet.</div>';
+    } else {
+      latestRecapEl.innerHTML = '<div class="recap-item">' +
+        '<div class="recap-item-title">' + escapeHtml(latestRecap.sessionLabel || 'No session label') + '</div>' +
+        '<div class="lore-item-meta">' + escapeHtml(formatDate(latestRecap.createdAt)) + '</div>' +
+        '<div class="recap-item-preview">' + escapeHtml(latestRecap.text.length > 250 ? latestRecap.text.slice(0, 250) + '...' : latestRecap.text) + '</div>' +
+      '</div>';
+    }
+
+    const activeQuests = QUEST_DEFINITIONS
+      .filter(quest => (questStates[quest.id] || 'active') === 'active')
+      .slice(0, 5);
+
+    if (!activeQuests.length) {
+      activeQuestListEl.innerHTML = '<div class="notes-empty">No active quests found.</div>';
+    } else {
+      activeQuestListEl.innerHTML = activeQuests.map(quest => '<div class="notes-item"><div class="notes-item-text">' + escapeHtml(quest.title) + '</div></div>').join('');
+    }
+
+    if (!latestLore.length) {
+      latestLoreEl.innerHTML = '<div class="notes-empty">No lore entries yet.</div>';
+    } else {
+      latestLoreEl.innerHTML = latestLore.map(entry =>
+        '<div class="notes-item">' +
+          '<div class="notes-item-text">' + escapeHtml(entry.title) + '</div>' +
+          '<div class="notes-item-meta">' + escapeHtml(entry.category + ' • ' + formatDate(entry.updatedAt)) + '</div>' +
+        '</div>'
+      ).join('');
+    }
   }
 
   function renderNpcRecapUpdates() {
@@ -2006,14 +2196,39 @@
   }
 
   function processRecapText() {
+    const editIdEl = document.getElementById('recap-edit-id');
+    const cancelBtn = document.getElementById('cancel-recap-edit');
     const sessionEl = document.getElementById('recap-session');
     const dateEl = document.getElementById('recap-date');
     const textEl = document.getElementById('recap-text');
-    if (!textEl) return;
+    if (!textEl || !editIdEl || !cancelBtn) return;
 
     const recapText = textEl.value.trim();
     if (!recapText) {
       setRecapStatus('Paste recap text before processing.');
+      return;
+    }
+
+    const requestedSession = extractSessionNumber(sessionEl ? sessionEl.value.trim() : '');
+    if (requestedSession && requestedSession > currentSessionNumber) {
+      currentSessionNumber = requestedSession;
+    }
+
+    if (editIdEl.value) {
+      const target = recapsState.recaps.find(recap => recap.id === editIdEl.value);
+      if (!target) {
+        setRecapStatus('Could not find recap to update.');
+        return;
+      }
+
+      target.sessionLabel = sessionEl ? sessionEl.value.trim() : '';
+      target.inWorldDate = dateEl ? dateEl.value.trim() : '';
+      target.text = recapText;
+
+      saveRecaps();
+      renderAll();
+      resetRecapForm();
+      setRecapStatus('Recap updated.');
       return;
     }
 
@@ -2049,10 +2264,49 @@
     renderAll();
 
     textEl.value = '';
-    if (sessionEl) sessionEl.value = '';
+    if (sessionEl) sessionEl.value = 'Session ' + (inferCurrentSessionNumber() + 1);
     if (dateEl) dateEl.value = '';
+    editIdEl.value = '';
+    cancelBtn.style.display = 'none';
 
     setRecapStatus('Processed recap: ' + routed + ' routed, ' + queued + ' sent to review queue.');
+  }
+
+  function populateRecapForm(recap) {
+    const editIdEl = document.getElementById('recap-edit-id');
+    const sessionEl = document.getElementById('recap-session');
+    const dateEl = document.getElementById('recap-date');
+    const textEl = document.getElementById('recap-text');
+    const processBtn = document.getElementById('process-recap');
+    const cancelBtn = document.getElementById('cancel-recap-edit');
+
+    if (!editIdEl || !sessionEl || !dateEl || !textEl || !processBtn || !cancelBtn) return;
+
+    editIdEl.value = recap.id;
+    sessionEl.value = recap.sessionLabel || '';
+    dateEl.value = recap.inWorldDate || '';
+    textEl.value = recap.text || '';
+    processBtn.textContent = 'Update Recap';
+    cancelBtn.style.display = '';
+    textEl.focus();
+  }
+
+  function resetRecapForm() {
+    const editIdEl = document.getElementById('recap-edit-id');
+    const sessionEl = document.getElementById('recap-session');
+    const dateEl = document.getElementById('recap-date');
+    const textEl = document.getElementById('recap-text');
+    const processBtn = document.getElementById('process-recap');
+    const cancelBtn = document.getElementById('cancel-recap-edit');
+
+    if (!editIdEl || !sessionEl || !dateEl || !textEl || !processBtn || !cancelBtn) return;
+
+    editIdEl.value = '';
+    sessionEl.value = 'Session ' + (inferCurrentSessionNumber() + 1);
+    dateEl.value = '';
+    textEl.value = '';
+    processBtn.textContent = 'Process Recap';
+    cancelBtn.style.display = 'none';
   }
 
   function parseLoreImportText(content) {
@@ -2145,6 +2399,95 @@
     link.remove();
     URL.revokeObjectURL(url);
     setLoreStatus('Lore exported.');
+  }
+
+  function buildCampaignSharedBundle() {
+    return {
+      schemaVersion: CAMPAIGN_SHARED_SCHEMA_VERSION,
+      exportedAt: new Date().toISOString(),
+      app: 'novalis-campaign-dashboard',
+      data: {
+        questStates: questStates,
+        notes: notesState.notes,
+        loreEntries: loreState.entries,
+        recaps: recapsState.recaps,
+        reviewQueue: reviewQueueState.items
+      }
+    };
+  }
+
+  function exportCampaignJson() {
+    const bundle = buildCampaignSharedBundle();
+    const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = CAMPAIGN_SHARED_FILE_NAME;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setCampaignStatus('Shared campaign JSON exported. Commit it to the repo to share updates.');
+  }
+
+  function applyCampaignSharedBundle(bundle) {
+    if (!bundle || typeof bundle !== 'object' || !bundle.data) {
+      throw new Error('Invalid campaign bundle format.');
+    }
+
+    const normalizedQuestStates = (bundle.data.questStates && typeof bundle.data.questStates === 'object') ? bundle.data.questStates : {};
+    const normalizedNotes = migrateNotes({ version: STORAGE_VERSION, notes: Array.isArray(bundle.data.notes) ? bundle.data.notes : [] });
+    const normalizedLore = ensureLoreState({ version: 1, entries: Array.isArray(bundle.data.loreEntries) ? bundle.data.loreEntries : [] });
+    const normalizedRecaps = ensureRecapsState({ version: 1, recaps: Array.isArray(bundle.data.recaps) ? bundle.data.recaps : [] });
+    const normalizedReview = ensureReviewQueueState({ version: 1, items: Array.isArray(bundle.data.reviewQueue) ? bundle.data.reviewQueue : [] });
+
+    questStates = normalizedQuestStates;
+    notesState = normalizedNotes;
+    loreState = normalizedLore;
+    recapsState = normalizedRecaps;
+    reviewQueueState = normalizedReview;
+
+    saveQuestStates();
+    saveNotes();
+    saveLore();
+    saveRecaps();
+    saveReviewQueue();
+
+    syncQuestStateControls();
+    renderAll();
+  }
+
+  function importCampaignJsonFile(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function() {
+      try {
+        const parsed = JSON.parse(String(reader.result || '{}'));
+        applyCampaignSharedBundle(parsed);
+        setCampaignStatus('Shared campaign JSON imported successfully.');
+      } catch (err) {
+        setCampaignStatus('Import failed: invalid shared campaign JSON.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function loadRepoCampaignJson() {
+    fetch(CAMPAIGN_SHARED_FILE_NAME, { cache: 'no-store' })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Could not load ' + CAMPAIGN_SHARED_FILE_NAME);
+        }
+        return response.json();
+      })
+      .then(bundle => {
+        applyCampaignSharedBundle(bundle);
+        setCampaignStatus('Loaded shared campaign JSON from repository file.');
+      })
+      .catch(() => {
+        setCampaignStatus('Load failed: start a local server and ensure campaign-shared.json exists in this folder.');
+      });
   }
 
   function saveLoreEntry() {
@@ -2580,6 +2923,8 @@
     renderReviewQueue();
     renderNpcRecapUpdates();
     renderRecentRecaps();
+    renderOverview();
+    updateHeaderFromRecaps();
   }
 
   function wireNotesEvents() {
@@ -2589,6 +2934,7 @@
     const importInput = document.getElementById('import-notes-file');
     const searchInput = document.getElementById('note-search');
     const processRecapBtn = document.getElementById('process-recap');
+    const cancelRecapEditBtn = document.getElementById('cancel-recap-edit');
     const loreSearchInput = document.getElementById('lore-search');
     const loreCategoryFilterEl = document.getElementById('lore-category-filter');
     const loreNpcFilterEl = document.getElementById('lore-npc-filter');
@@ -2597,6 +2943,10 @@
     const importLoreBtn = document.getElementById('import-lore');
     const exportLoreBtn = document.getElementById('export-lore');
     const importLoreInput = document.getElementById('import-lore-file');
+    const exportCampaignBtn = document.getElementById('export-campaign-json');
+    const importCampaignBtn = document.getElementById('import-campaign-json');
+    const loadRepoCampaignBtn = document.getElementById('load-repo-campaign-json');
+    const importCampaignInput = document.getElementById('import-campaign-json-file');
 
     if (saveBtn) saveBtn.addEventListener('click', handleSaveNote);
     if (exportBtn) exportBtn.addEventListener('click', exportNotes);
@@ -2621,6 +2971,13 @@
 
     if (processRecapBtn) {
       processRecapBtn.addEventListener('click', processRecapText);
+    }
+
+    if (cancelRecapEditBtn) {
+      cancelRecapEditBtn.addEventListener('click', function() {
+        resetRecapForm();
+        setRecapStatus('Recap edit canceled.');
+      });
     }
 
     if (loreSearchInput) {
@@ -2672,6 +3029,28 @@
     if (exportLoreBtn) {
       exportLoreBtn.addEventListener('click', exportLore);
     }
+
+    if (exportCampaignBtn) {
+      exportCampaignBtn.addEventListener('click', exportCampaignJson);
+    }
+
+    if (importCampaignBtn && importCampaignInput) {
+      importCampaignBtn.addEventListener('click', function() {
+        importCampaignInput.click();
+      });
+    }
+
+    if (importCampaignInput) {
+      importCampaignInput.addEventListener('change', function() {
+        const file = importCampaignInput.files && importCampaignInput.files[0] ? importCampaignInput.files[0] : null;
+        importCampaignJsonFile(file);
+        importCampaignInput.value = '';
+      });
+    }
+
+    if (loadRepoCampaignBtn) {
+      loadRepoCampaignBtn.addEventListener('click', loadRepoCampaignJson);
+    }
   }
 
   populateQuestSelect();
@@ -2685,6 +3064,7 @@
   wireQuestStateEvents();
   wireNotesEvents();
   resetLoreForm();
+  resetRecapForm();
   renderAll();
 </script>
 
