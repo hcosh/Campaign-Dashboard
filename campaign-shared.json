@@ -1,12 +1,177 @@
 {
   "schemaVersion": 1,
-  "exportedAt": "2026-07-14T00:00:00.000Z",
+  "exportedAt": "2026-07-14T14:37:39.970Z",
   "app": "novalis-campaign-dashboard",
   "data": {
     "questStates": {},
-    "notes": [],
-    "loreEntries": [],
-    "recaps": [],
+    "notes": [
+      {
+        "id": "note-1784006997492-qymnhd",
+        "text": "Fresh from the arson of the Sleeping Giant, the party alongisde Daran Edermath, made their way straight to Tresendar Manor (via a quick stop to receive a blessing from Sister Garaele), opting to keep momentum and strike while the Redbrands were still unprepared.",
+        "createdAt": "2026-07-14T05:29:57.490Z",
+        "sessionLabel": "",
+        "tags": [
+          "recap"
+        ],
+        "assignedQuestId": "storm-tresendar-manor",
+        "assignmentSource": "recap-keyword",
+        "assignmentConfidence": "high"
+      },
+      {
+        "id": "note-1784006997492-44xzks",
+        "text": "They descended into the cellar, exploring the first set of storage rooms, finding an empty sleeping area, and a secret door. While investigating the tunnel to the cavern beyond the door, they drew the notice of the Nothic that had taken up residence and struck a deal with the Redbrands - protection for fresh meat. Milo engaged in a telepathic conversation with the Nothic, it showed him his own most traumatic event, and indicated it had other secrets it might be willing to trade for. Eventually Milo opted to retreat from the creature, at which point it raised the alarm about the intruders. The three bugbears resident in the barracks came running, and a heated battle ensued, with the Nothic sniping with its Rotting Gaze, Thoren coming close to death, and Xander almost abducted by a bugbear.",
+        "createdAt": "2026-07-14T05:29:57.490Z",
+        "sessionLabel": "",
+        "tags": [
+          "recap"
+        ],
+        "assignedQuestId": "storm-tresendar-manor",
+        "assignmentSource": "recap-keyword",
+        "assignmentConfidence": "high"
+      }
+    ],
+    "loreEntries": [
+      {
+        "id": "lore-1784032286931-yjzjy6",
+        "title": "The Veil",
+        "body": "The Veil\n    • Reclusive and shadowy criminal network\n    • Deal in weapons smuggling, mercenary supplies, assassinations and thieving\n    • Often use the information their agents learn on assignments against clients to blackmail or bribe them\n    • There’s a story about their leader being an immortal wizard\n    • Headquarters in Windtide",
+        "category": "Organizations",
+        "tags": [
+          "veil",
+          "factions"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [],
+        "relatedNpcIds": [
+          "halia-thornton"
+        ],
+        "createdAt": "2026-07-14T12:31:26.931Z",
+        "updatedAt": "2026-07-14T12:31:26.931Z"
+      },
+      {
+        "id": "lore-1784032318362-3wmkcw",
+        "title": "The Silver Hand",
+        "body": "The Silver Hand\n    • A Mafia-style grouping of five families runs this shady mercenary company\n    • While anyone who had coin could retain their services, they worked closely with the Kolus Union before Contact, helping to maintain colonial outposts, manage work crews and caravans, and guarding borders. In recent years their activity in the New Union seems to have increased and become more criminal, competing with the Veil.\n    • Headquarted in Angard’s Rest in Tolaur",
+        "category": "Organizations",
+        "tags": [
+          "silver hand",
+          "factions"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [],
+        "relatedNpcIds": [],
+        "createdAt": "2026-07-14T12:31:58.362Z",
+        "updatedAt": "2026-07-14T12:31:58.362Z"
+      },
+      {
+        "id": "lore-1784032352829-1kp7z4",
+        "title": "The Wild's Run",
+        "body": "The Wild’s Run\n    • Hunters/rangers/monster slayers for hire\n    • Nose-to-tail philosophy\n    • Hate trophy hunting, all kills must be necessary for balance",
+        "category": "Organizations",
+        "tags": [
+          "wild's run",
+          "factions"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [],
+        "relatedNpcIds": [],
+        "createdAt": "2026-07-14T12:32:32.829Z",
+        "updatedAt": "2026-07-14T12:32:32.829Z"
+      },
+      {
+        "id": "lore-1784032390989-xosdfg",
+        "title": "Helldiver's Club",
+        "body": "The Helldivers Club\n    • A mercenary/adventuring network who hire out their services. Has a franchise structure - often an established adventuring group will get bought out and assimilated into the overall organisation\n    • Expedition escort services, find and retrieve missions, eliminating monsters or fiends",
+        "category": "Organizations",
+        "tags": [
+          "helldiver's club",
+          "factions"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [],
+        "relatedNpcIds": [],
+        "createdAt": "2026-07-14T12:33:10.989Z",
+        "updatedAt": "2026-07-14T12:33:10.989Z"
+      },
+      {
+        "id": "lore-1784032416548-8mxmib",
+        "title": "The Archivex",
+        "body": "The Archivex \n    • Network of libraries and archaeological societies, headquartered in Woldruum. Patron god is Einar, although not all affiliates are religious\n    • Monks, knowledge clerics, bards, wizards\n    • Aim to preserve balance by sequestering powerful artifacts, or destroying them if need be",
+        "category": "Organizations",
+        "tags": [
+          "archivex",
+          "factions"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [],
+        "relatedNpcIds": [],
+        "createdAt": "2026-07-14T12:33:36.548Z",
+        "updatedAt": "2026-07-14T12:33:36.548Z"
+      },
+      {
+        "id": "lore-1784039712306-t4lxgr",
+        "title": "Contact",
+        "body": "Contact was an earthshattering event for every person in Novalis\n\nContact began when the Human King Arnoud Vatim ordered his Admiral Youn Firthssin to sail the newly constructed and magically-powered 7 ship airfleet over the great waterwaste to the West, with the intent of founding a new colony. At this time there were no other known advanced races to the people of Bostheim, and the Waterwaste had never been crossed on account of the Vasttide - a regular, giant wave originating from the North. After a month long journey, the airfleet arrived on the Eastern shores of Al'oker at the elven settlement of Mithra. The fleet was immediately met by an elven dragonrider, but the crew of Admiral Firthssin's ship had never seen a tame dragon, and opened fire in fear, prompting a swift rallying of the elven dragonflight guard and destruction of the airfleet.\n\nTwo years later, the Dragonflight Advance invaded Bostheim's western shores where Forrgald meets the Waterwaste. The Kolus Union had been busy building Air Frigates with the agility and fireproofing to withstand dragon attacks. However, they were powered with divine magic granted (and being constantly channelled) by the Church of Kolus. As the Dragonflight approached land, all connection to Kolus suddenly disappeared. Every cleric and all magic sustained by him became suddenly mundane. The Airfleet fell from the sky.\n\nThe Dragonflight easily overpowered the Union’s cavalry-based armies, and razed the westernmost Pentacity of Darkwall. For unknown reasons, the Helath immediately called a truce in exchange for the annexation of the ruins of Darkwall and surrounding land. That region is now magically shrouded and barriered - no-one on Bostheim knows what is happening inside. \n\nWith the sudden loss of power and destruction of much of the Union’s army, the slaves revolted and drove out their former masters.",
+        "category": "History",
+        "tags": [
+          "contact"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [],
+        "relatedNpcIds": [],
+        "createdAt": "2026-07-14T14:35:12.306Z",
+        "updatedAt": "2026-07-14T14:35:12.306Z"
+      },
+      {
+        "id": "lore-1784039774544-r974qy",
+        "title": "The Gods",
+        "body": "The gods of Novalis all used to be mortals, though they no longer bear much resemblance to their mortal forms. Divine power comes from worship in whatever form is demanded by the gods. It is well-known that all of the gods ascended long ago, and none have been added since. The gods can, and have visited Novalis frequently, to intervene in wars, meet with Kings, and to have families.\n\nBefore the gods there were Titans. These were otherworldly manifestations of the elements and of chaos. The titans acted as reavers and renewers of worlds, breaking down living things, planets and even stars to their constituent parts, so they could be remade. The gods were once mortals who sensed the return of the Titans, and through now-lost magic managed to ascend to a level of power where they could challenge the Titans. A key component of this ritual was the Heaven’s Chain, a metaphysical construct that forces the Divine Realm of Elysium apart from the Material Plane. Maintaining this construct is essential to maintaining the concept and order of Divinity. Prayer, worship, divine power and the Gods themselves travel along the Chain.\nMany other powerful beings exist across the planes, but no others are considered Divine. \n\nKolus (War)\n    • God of blood and songs\n    • A cunning military strategist who understands the worth of both tactics and fury. Teaches that all means justify a victory\n    • Leads the divine war effort against Hell and Titans\nGriig (Tempest)\n    • God of storms and fortitude\n    • The source of lightning and wind in the Material Plane\n    • Said to have been a cloud giant in life, and is worshipped by the Cloud Giants of Ryvast\nVelania (Death)\n    • God of balance and regeneration\n    • Stands at the entrance to The Pit and guards all other realms from Hell and The Abyss\n    • Guides souls to their correct place after death\n    • Married to Roke since they were mortals\nThe Living Shadow (Trickery)\n    • God of ancestors and secrets\n    • Good-natured keeper of the knowledge of gods\n    • When someone dies, The Living Shadow interviews them in a windowless, doorless room floating in the Astral Sea. It ascertains all knowledge available to that being and remembers it\nRoke (Life)\n    • God of pleasure and vitality\n    • Guides new souls to bodies - without him all babies would be born dead\nEinar (Knowledge)\n    • God of exploration and craft\n    • Builds god weapons and spies on titans\n    • Brother of Drathir\nDrathir (Light)\n    • God of fire and chaos\n    • Maintains divinity by fuelling the heaven’s chain\n    • Einar and Drathir are designer and builder of the weapons and defences of Elysium\nThe Whispered Wind (Nature)\n    • Emotionless, faceless\n    • When it was a mortal, it was an Orcish child that lived and died in the wilderness with no contact\n    • Spends most of its time on the Material Plane, tending it like a garden",
+        "category": "Religion",
+        "tags": [
+          "religion"
+        ],
+        "source": "manual",
+        "relatedQuestIds": [
+          "orcish-raiders-triboar-trail"
+        ],
+        "relatedNpcIds": [],
+        "createdAt": "2026-07-14T14:36:14.544Z",
+        "updatedAt": "2026-07-14T14:36:14.544Z"
+      }
+    ],
+    "recaps": [
+      {
+        "id": "recap-1784006997490-51zsbp",
+        "sessionLabel": "Session 7",
+        "inWorldDate": "",
+        "text": "Fresh from the arson of the Sleeping Giant, the party alongisde Daran Edermath, made their way straight to Tresendar Manor (via a quick stop to receive a blessing from Sister Garaele), opting to keep momentum and strike while the Redbrands were still unprepared.\n\nThey descended into the cellar, exploring the first set of storage rooms, finding an empty sleeping area, and a secret door. While investigating the tunnel to the cavern beyond the door, they drew the notice of the Nothic that had taken up residence and struck a deal with the Redbrands - protection for fresh meat. Milo engaged in a telepathic conversation with the Nothic, it showed him his own most traumatic event, and indicated it had other secrets it might be willing to trade for. Eventually Milo opted to retreat from the creature, at which point it raised the alarm about the intruders. The three bugbears resident in the barracks came running, and a heated battle ensued, with the Nothic sniping with its Rotting Gaze, Thoren coming close to death, and Xander almost abducted by a bugbear. \n\nEventually Eineas and Xander ran down the fleeing Nothic, ending its miserable existence down in the dark crevasse. One barely alive bugbear escaped through the Tresendar family crypt. The party bound the two large stone doors with rope, and took a moment to regroup.",
+        "createdAt": "2026-07-14T05:29:57.490Z",
+        "routes": [
+          {
+            "targetType": "quest",
+            "targetId": "storm-tresendar-manor",
+            "text": "Fresh from the arson of the Sleeping Giant, the party alongisde Daran Edermath, made their way straight to Tresendar Manor (via a quick stop to receive a blessing from Sister Garaele), opting to keep momentum and strike while the Redbrands were still unprepared.",
+            "confidence": "high",
+            "reason": "keyword"
+          },
+          {
+            "targetType": "quest",
+            "targetId": "storm-tresendar-manor",
+            "text": "They descended into the cellar, exploring the first set of storage rooms, finding an empty sleeping area, and a secret door. While investigating the tunnel to the cavern beyond the door, they drew the notice of the Nothic that had taken up residence and struck a deal with the Redbrands - protection for fresh meat. Milo engaged in a telepathic conversation with the Nothic, it showed him his own most traumatic event, and indicated it had other secrets it might be willing to trade for. Eventually Milo opted to retreat from the creature, at which point it raised the alarm about the intruders. The three bugbears resident in the barracks came running, and a heated battle ensued, with the Nothic sniping with its Rotting Gaze, Thoren coming close to death, and Xander almost abducted by a bugbear.",
+            "confidence": "high",
+            "reason": "keyword"
+          },
+          {
+            "targetType": "lore",
+            "targetId": null,
+            "text": "Eventually Eineas and Xander ran down the fleeing Nothic, ending its miserable existence down in the dark crevasse. One barely alive bugbear escaped through the Tresendar family crypt. The party bound the two large stone doors with rope, and took a moment to regroup.",
+            "loreCategory": "History",
+            "confidence": "medium",
+            "reason": "keyword"
+          }
+        ]
+      }
+    ],
     "reviewQueue": []
   }
 }
