@@ -1082,7 +1082,7 @@
 
 </div><!-- /content -->
 
-<div class="meta">Novalis · Session 6 complete · 19 Post-Contact</div>
+<div class="meta">Novalis · Session <span id="footer-session-number">6</span> complete · 19 Post-Contact</div>
 
 <script>
   const STORAGE_KEY = 'novalis_dashboard_notes_v1';
@@ -1202,10 +1202,14 @@
   function updateHeaderFromRecaps() {
     const sessionMarkerEl = document.getElementById('header-session-marker');
     const cliffhangerTextEl = document.getElementById('header-cliffhanger-text');
+    const footerSessionEl = document.getElementById('footer-session-number');
     if (!sessionMarkerEl || !cliffhangerTextEl) return;
 
     currentSessionNumber = inferCurrentSessionNumber();
     sessionMarkerEl.textContent = 'After Session ' + currentSessionNumber + ':';
+    if (footerSessionEl) {
+      footerSessionEl.textContent = String(currentSessionNumber);
+    }
 
     const latestRecap = recapsState.recaps
       .slice()
