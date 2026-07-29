@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "notes": [
+    {
+      "id": "note-1784006997492-qymnhd",
+      "text": "Fresh from the arson of the Sleeping Giant, the party alongisde Daran Edermath, made their way straight to Tresendar Manor (via a quick stop to receive a blessing from Sister Garaele), opting to keep momentum and strike while the Redbrands were still unprepared.",
+      "createdAt": "2026-07-14T05:29:57.490Z",
+      "sessionLabel": "",
+      "tags": [
+        "recap"
+      ],
+      "assignedQuestId": "storm-tresendar-manor",
+      "assignmentSource": "recap-keyword",
+      "assignmentConfidence": "high"
+    },
+    {
+      "id": "note-1784006997492-44xzks",
+      "text": "They descended into the cellar, exploring the first set of storage rooms, finding an empty sleeping area, and a secret door. While investigating the tunnel to the cavern beyond the door, they drew the notice of the Nothic that had taken up residence and struck a deal with the Redbrands - protection for fresh meat. Milo engaged in a telepathic conversation with the Nothic, it showed him his own most traumatic event, and indicated it had other secrets it might be willing to trade for. Eventually Milo opted to retreat from the creature, at which point it raised the alarm about the intruders. The three bugbears resident in the barracks came running, and a heated battle ensued, with the Nothic sniping with its Rotting Gaze, Thoren coming close to death, and Xander almost abducted by a bugbear.",
+      "createdAt": "2026-07-14T05:29:57.490Z",
+      "sessionLabel": "",
+      "tags": [
+        "recap"
+      ],
+      "assignedQuestId": "storm-tresendar-manor",
+      "assignmentSource": "recap-keyword",
+      "assignmentConfidence": "high"
+    },
+    {
+      "id": "note-1785261047663-pif38u",
+      "text": "Making their way deeper into the complex, they found an alchemical laboratory which was being used to produce potions of invisibility, and were seen by the rat familiar of the wizard Glasstaff, who ran up his secret escape stairs right into the waiting party. With some lucky quick thinking and movement (and the previous failure of the party to remove his go-bag from the cistern), Glasstaff managed to down a potion of invisibility and escape from the Tresendar crypts. After a little more fighting and clearing of undead, the party found a few more Redbrands and the severely injured bugbear keeping hostages in the prison cells - they struck a deal to let the thugs leave with their lives - both sides kept to the deal and the hostages (Thel Dendrar's wife and two teenage children) were safely freed.",
+      "createdAt": "2026-07-28T17:50:47.660Z",
+      "sessionLabel": "Session 8",
+      "tags": [
+        "recap",
+        "session:session 8"
+      ],
+      "assignedQuestId": "glasstaff",
+      "assignmentSource": "recap-title",
+      "assignmentConfidence": "high"
+    },
+    {
+      "id": "note-1785261802601-rae70f",
+      "text": "Supposed treasure hidden under the floorboards in Thundertree, according to the woman we rescued in Tresendar Manor.",
+      "createdAt": "2026-07-28T18:03:22.601Z",
+      "sessionLabel": "instead of a reward",
+      "tags": [
+        "treasure"
+      ],
+      "assignedQuestId": "orcish-raiders-triboar-trail",
+      "assignmentSource": "manual",
+      "assignmentConfidence": "high"
+    },
+    {
+      "id": "note-1785262631273-792vea",
+      "text": "Druid spotted in the woods in the East near Thundertree",
+      "createdAt": "2026-07-28T18:17:11.273Z",
+      "sessionLabel": "rumor from Sildar",
+      "tags": [
+        "npc",
+        "rumors"
+      ],
+      "assignedQuestId": "orcish-raiders-triboar-trail",
+      "assignmentSource": "manual",
+      "assignmentConfidence": "high"
+    },
+    {
+      "id": "note-1785264980562-wwry35",
+      "text": "Glasstaff is Albrek!",
+      "createdAt": "2026-07-28T18:56:20.562Z",
+      "sessionLabel": "realization",
+      "tags": [
+        "npc"
+      ],
+      "assignedQuestId": "iarno-albrek",
+      "assignmentSource": "manual",
+      "assignmentConfidence": "high"
+    }
+  ]
+}
