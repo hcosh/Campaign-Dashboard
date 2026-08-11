@@ -48,6 +48,8 @@
     border-bottom: 2px solid #e5ddd0;
     background: #fff;
     padding: 0 20px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .tab {
     padding: 11px 20px;
@@ -284,6 +286,9 @@
     grid-template-columns: 1fr;
     gap: 10px;
   }
+  .campaign-sync-actions {
+    grid-template-columns: 1fr;
+  }
   .notes-button {
     min-height: 44px;
     cursor: pointer;
@@ -307,6 +312,111 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+  .maps-toolbar {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .map-viewer {
+    border: 1px solid #e8dfd0;
+    border-radius: 12px;
+    background: #fff;
+    padding: 12px;
+  }
+  .map-viewer-frame {
+    display: block;
+    width: 100%;
+    max-height: 72vh;
+    object-fit: contain;
+    background: linear-gradient(180deg, #f8f2e8, #fff);
+    border-radius: 10px;
+  }
+  .map-meta {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .map-meta-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #4c3312;
+  }
+  .map-meta-text {
+    font-size: 14px;
+    color: #5c4c35;
+  }
+  .map-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid #dccfb9;
+    background: #fff;
+    color: #6b4b27;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .map-link.primary {
+    background: #7c3a12;
+    border-color: #7c3a12;
+    color: #fff;
+  }
+  .map-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .map-card {
+    border: 1px solid #eadfcb;
+    border-radius: 10px;
+    background: #fff;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .map-card:hover {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+  .map-card.active {
+    border-color: #7c3a12;
+    box-shadow: 0 0 0 2px rgba(124, 58, 18, 0.16);
+  }
+  .map-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4c3312;
+    margin-top: 8px;
+  }
+  .map-card-note {
+    font-size: 12px;
+    color: #7a6850;
+    margin-top: 2px;
+  }
+  .map-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #efe6d8;
+    background: #f8f2e8;
+  }
+  .map-empty {
+    border: 1px dashed #dccfb9;
+    border-radius: 10px;
+    padding: 16px;
+    color: #7a6850;
+    background: #fff;
   }
   .notes-item {
     border: 1px solid #eadfcb;
@@ -488,6 +598,9 @@
     .notes-actions {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+    .campaign-sync-actions {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
     .notes-inline-controls {
       grid-template-columns: 1fr auto;
       align-items: center;
@@ -547,6 +660,7 @@
 <div class="tabs">
   <div class="tab active" onclick="switchTab('overview', this)">🏠 Overview</div>
   <div class="tab" onclick="switchTab('quests', this)">⚔ Quests</div>
+  <div class="tab" onclick="switchTab('maps', this)">🗺 Maps</div>
   <div class="tab" onclick="switchTab('npcs', this)">👥 NPCs</div>
   <div class="tab" onclick="switchTab('notes', this)">📝 Notes</div>
   <div class="tab" onclick="switchTab('recaps', this)">📜 Recaps</div>
@@ -785,6 +899,19 @@
     </div>
   </div>
 
+  <!-- ══════════════ MAPS PANEL ══════════════ -->
+  <div id="panel-maps" class="panel">
+    <section class="notes-card">
+      <h2>Repo Maps</h2>
+      <div id="maps-empty" class="map-empty" style="display:none;">
+        No map images are registered yet. Add image files to the repo and list them in the map library.
+      </div>
+      <div id="maps-toolbar" class="maps-toolbar"></div>
+      <div id="map-viewer" class="map-viewer" style="display:none;"></div>
+      <div id="map-gallery" class="map-gallery"></div>
+    </section>
+  </div>
+
   <!-- ══════════════ NPCS PANEL ══════════════ -->
   <div id="panel-npcs" class="panel">
     <table class="npc-table">
@@ -973,10 +1100,11 @@
 
         <div style="margin-top: 14px; border-top: 1px dashed #e8dfd0; padding-top: 12px;">
           <label class="field-label">Campaign Sync (Shared JSON)</label>
-          <div class="notes-actions" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="notes-actions campaign-sync-actions">
             <button id="export-campaign-json" class="notes-button ghost" type="button">Export Shared JSON</button>
             <button id="import-campaign-json" class="notes-button ghost" type="button">Import Shared JSON</button>
             <button id="load-repo-campaign-json" class="notes-button ghost" type="button">Load Repo JSON</button>
+            <button id="connect-campaign-sync" class="notes-button primary" type="button">Connect Auto Sync</button>
           </div>
           <input id="import-campaign-json-file" type="file" accept="application/json" style="display:none;">
           <div id="campaign-sync-status" class="notes-status" aria-live="polite"></div>
@@ -1094,6 +1222,11 @@
   const REVIEW_QUEUE_STORAGE_KEY = 'novalis_dashboard_review_queue_v1';
   const CAMPAIGN_SHARED_SCHEMA_VERSION = 1;
   const CAMPAIGN_SHARED_FILE_NAME = 'campaign-shared.json';
+  const CAMPAIGN_SYNC_DB_NAME = 'novalis-dashboard-campaign-sync';
+  const CAMPAIGN_SYNC_DB_VERSION = 1;
+  const CAMPAIGN_SYNC_STORE_NAME = 'sync-state';
+  const CAMPAIGN_SYNC_HANDLE_KEY = 'campaign-shared-json';
+  const CAMPAIGN_SYNC_DEBOUNCE_MS = 250;
   const LORE_CATEGORIES = ['Religion', 'History', 'Factions', 'Locations', 'Organizations', 'Items', 'Events', 'Customs/Culture'];
 
   const QUEST_DEFINITIONS = [
@@ -1127,6 +1260,15 @@
     'timeline': 'timeline'
   };
 
+  const MAP_LIBRARY = [
+    {
+      id: 'ruins-of-thundertree-player',
+      title: 'Ruins of Thundertree',
+      file: 'map-3.1-Ruins-of-Thundertree-player.jpeg',
+      note: 'Player-facing map stored in the repo root.'
+    }
+  ];
+
   let notesState = { version: STORAGE_VERSION, notes: [] };
   let questStates = {};
   let noteSearchTerm = '';
@@ -1138,6 +1280,11 @@
   let loreNpcFilter = 'all';
   let npcRecapUpdates = {};
   let currentSessionNumber = 6;
+  let selectedMapId = MAP_LIBRARY[0] ? MAP_LIBRARY[0].id : '';
+  let campaignSharedFileHandle = null;
+  let campaignSharedSyncTimer = null;
+  let campaignSharedSyncInFlight = false;
+  let campaignSharedSyncPending = false;
 
   function switchTab(name, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -1271,6 +1418,7 @@
 
   function saveNotes() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notesState));
+    queueCampaignSharedAutoSync();
   }
 
   function loadQuestStates() {
@@ -1295,6 +1443,7 @@
 
   function saveQuestStates() {
     localStorage.setItem(QUEST_STATE_STORAGE_KEY, JSON.stringify(questStates));
+    queueCampaignSharedAutoSync();
   }
 
   function parseTags(rawTags) {
@@ -1390,6 +1539,203 @@
 
   function setCampaignStatus(message) {
     statusByPanel('campaign', message);
+  }
+
+  function supportsCampaignFileAccess() {
+    return typeof window.showOpenFilePicker === 'function' && typeof indexedDB !== 'undefined';
+  }
+
+  function openCampaignSyncDb() {
+    return new Promise(function(resolve, reject) {
+      if (!window.indexedDB) {
+        reject(new Error('IndexedDB is unavailable.'));
+        return;
+      }
+
+      const request = indexedDB.open(CAMPAIGN_SYNC_DB_NAME, CAMPAIGN_SYNC_DB_VERSION);
+
+      request.onupgradeneeded = function() {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(CAMPAIGN_SYNC_STORE_NAME)) {
+          db.createObjectStore(CAMPAIGN_SYNC_STORE_NAME);
+        }
+      };
+
+      request.onsuccess = function() {
+        resolve(request.result);
+      };
+
+      request.onerror = function() {
+        reject(request.error || new Error('Unable to open campaign sync storage.'));
+      };
+
+      request.onblocked = function() {
+        reject(new Error('Campaign sync storage is blocked.'));
+      };
+    });
+  }
+
+  async function readCampaignSyncHandle() {
+    try {
+      const db = await openCampaignSyncDb();
+      return await new Promise(function(resolve, reject) {
+        const transaction = db.transaction(CAMPAIGN_SYNC_STORE_NAME, 'readonly');
+        const store = transaction.objectStore(CAMPAIGN_SYNC_STORE_NAME);
+        const request = store.get(CAMPAIGN_SYNC_HANDLE_KEY);
+
+        request.onsuccess = function() {
+          resolve(request.result || null);
+        };
+
+        request.onerror = function() {
+          reject(request.error || new Error('Unable to read campaign sync storage.'));
+        };
+
+        transaction.oncomplete = function() {
+          db.close();
+        };
+
+        transaction.onerror = function() {
+          db.close();
+          reject(transaction.error || new Error('Unable to read campaign sync storage.'));
+        };
+      });
+    } catch (err) {
+      return null;
+    }
+  }
+
+  async function saveCampaignSyncHandle(handle) {
+    const db = await openCampaignSyncDb();
+    await new Promise(function(resolve, reject) {
+      const transaction = db.transaction(CAMPAIGN_SYNC_STORE_NAME, 'readwrite');
+      const store = transaction.objectStore(CAMPAIGN_SYNC_STORE_NAME);
+      const request = store.put(handle, CAMPAIGN_SYNC_HANDLE_KEY);
+
+      request.onsuccess = function() {
+        resolve();
+      };
+
+      request.onerror = function() {
+        reject(request.error || new Error('Unable to store campaign sync handle.'));
+      };
+
+      transaction.oncomplete = function() {
+        db.close();
+      };
+
+      transaction.onerror = function() {
+        db.close();
+        reject(transaction.error || new Error('Unable to store campaign sync handle.'));
+      };
+    });
+  }
+
+  async function canUseCampaignSyncHandle(handle, allowPrompt) {
+    if (!handle || typeof handle.queryPermission !== 'function') return false;
+    let permission = await handle.queryPermission({ mode: 'readwrite' });
+    if (permission === 'granted') return true;
+
+    if (allowPrompt && typeof handle.requestPermission === 'function') {
+      permission = await handle.requestPermission({ mode: 'readwrite' });
+      return permission === 'granted';
+    }
+
+    return false;
+  }
+
+  function queueCampaignSharedAutoSync() {
+    if (!campaignSharedFileHandle) return;
+    if (campaignSharedSyncTimer) {
+      clearTimeout(campaignSharedSyncTimer);
+    }
+
+    campaignSharedSyncTimer = window.setTimeout(function() {
+      campaignSharedSyncTimer = null;
+      syncCampaignSharedJsonToRepo();
+    }, CAMPAIGN_SYNC_DEBOUNCE_MS);
+  }
+
+  async function syncCampaignSharedJsonToRepo() {
+    if (!campaignSharedFileHandle || campaignSharedSyncInFlight) {
+      campaignSharedSyncPending = true;
+      return;
+    }
+
+    if (typeof campaignSharedFileHandle.createWritable !== 'function') {
+      setCampaignStatus('Automatic repo sync is unavailable in this browser.');
+      return;
+    }
+
+    campaignSharedSyncInFlight = true;
+    campaignSharedSyncPending = false;
+
+    try {
+      const writable = await campaignSharedFileHandle.createWritable();
+      await writable.write(JSON.stringify(buildCampaignSharedBundle(), null, 2));
+      await writable.close();
+      setCampaignStatus('Shared campaign JSON synced to the repo file.');
+    } catch (err) {
+      setCampaignStatus('Auto-sync failed. Reconnect repo sync or export JSON manually.');
+    } finally {
+      campaignSharedSyncInFlight = false;
+      if (campaignSharedSyncPending) {
+        campaignSharedSyncPending = false;
+        queueCampaignSharedAutoSync();
+      }
+    }
+  }
+
+  async function connectCampaignRepoSync() {
+    if (!supportsCampaignFileAccess()) {
+      setCampaignStatus('Automatic repo sync needs Chrome or Edge on localhost or another File System Access capable browser.');
+      return;
+    }
+
+    try {
+      const handles = await window.showOpenFilePicker({
+        multiple: false,
+        excludeAcceptAllOption: true,
+        types: [{
+          description: 'Shared campaign JSON',
+          accept: { 'application/json': ['.json'] }
+        }]
+      });
+
+      const handle = handles && handles[0] ? handles[0] : null;
+      if (!handle) return;
+
+      if (handle.name !== CAMPAIGN_SHARED_FILE_NAME) {
+        setCampaignStatus('Select ' + CAMPAIGN_SHARED_FILE_NAME + ' from the repo root to enable automatic sync.');
+        return;
+      }
+
+      if (!(await canUseCampaignSyncHandle(handle, true))) {
+        setCampaignStatus('Grant write access to the repo file, then try connecting again.');
+        return;
+      }
+
+      campaignSharedFileHandle = handle;
+      await saveCampaignSyncHandle(handle);
+      setCampaignStatus('Connected to campaign-shared.json. Future saves will sync automatically.');
+    } catch (err) {
+      if (!err || err.name !== 'AbortError') {
+        setCampaignStatus('Could not connect automatic repo sync.');
+      }
+    }
+  }
+
+  async function restoreCampaignRepoSync() {
+    const handle = await readCampaignSyncHandle();
+    if (!handle) return;
+
+    if (!(await canUseCampaignSyncHandle(handle, false))) {
+      setCampaignStatus('Automatic repo sync is remembered here, but write permission is missing. Reconnect to resume syncing.');
+      return;
+    }
+
+    campaignSharedFileHandle = handle;
+    setCampaignStatus('Automatic repo sync is connected. Changes will update campaign-shared.json after each save.');
   }
 
   function getNpcNames() {
@@ -1776,6 +2122,7 @@
 
   function saveRecaps() {
     localStorage.setItem(RECAP_STORAGE_KEY, JSON.stringify(recapsState));
+    queueCampaignSharedAutoSync();
   }
 
   function loadLore() {
@@ -1791,6 +2138,7 @@
 
   function saveLore() {
     localStorage.setItem(LORE_STORAGE_KEY, JSON.stringify(loreState));
+    queueCampaignSharedAutoSync();
   }
 
   function loadReviewQueue() {
@@ -1806,6 +2154,7 @@
 
   function saveReviewQueue() {
     localStorage.setItem(REVIEW_QUEUE_STORAGE_KEY, JSON.stringify(reviewQueueState));
+    queueCampaignSharedAutoSync();
   }
 
   function populateLoreCategorySelectors() {
@@ -2035,6 +2384,67 @@
         '</div>'
       ).join('');
     }
+  }
+
+  function mapById(id) {
+    return MAP_LIBRARY.find(map => map.id === id) || null;
+  }
+
+  function renderMapsPanel() {
+    const emptyEl = document.getElementById('maps-empty');
+    const toolbarEl = document.getElementById('maps-toolbar');
+    const viewerEl = document.getElementById('map-viewer');
+    const galleryEl = document.getElementById('map-gallery');
+
+    if (!emptyEl || !toolbarEl || !viewerEl || !galleryEl) return;
+
+    if (!MAP_LIBRARY.length) {
+      emptyEl.style.display = 'block';
+      toolbarEl.innerHTML = '';
+      viewerEl.style.display = 'none';
+      galleryEl.innerHTML = '';
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+
+    const activeMap = mapById(selectedMapId) || MAP_LIBRARY[0];
+    selectedMapId = activeMap.id;
+
+    toolbarEl.innerHTML =
+      '<div class="notes-item-meta">Select a map stored in the repo. The file opens directly from this dashboard.</div>';
+
+    viewerEl.style.display = 'block';
+    viewerEl.innerHTML =
+      '<img class="map-viewer-frame" src="' + escapeHtml(activeMap.file) + '" alt="' + escapeHtml(activeMap.title) + '">' +
+      '<div class="map-meta">' +
+        '<div class="map-meta-title">' + escapeHtml(activeMap.title) + '</div>' +
+        '<div class="map-meta-text">' + escapeHtml(activeMap.note) + '</div>' +
+        '<div class="map-links">' +
+          '<a class="map-link primary" href="' + escapeHtml(activeMap.file) + '" target="_blank" rel="noopener">Open full size</a>' +
+          '<a class="map-link" href="' + escapeHtml(activeMap.file) + '" download>Download</a>' +
+        '</div>' +
+      '</div>';
+
+    galleryEl.innerHTML = MAP_LIBRARY.map(map => {
+      const activeClass = map.id === activeMap.id ? ' active' : '';
+      return (
+        '<button class="map-card' + activeClass + '" type="button" data-map-id="' + escapeHtml(map.id) + '">' +
+          '<img class="map-thumb" src="' + escapeHtml(map.file) + '" alt="' + escapeHtml(map.title + ' thumbnail') + '">' +
+          '<div class="map-card-title">' + escapeHtml(map.title) + '</div>' +
+          '<div class="map-card-note">' + escapeHtml(map.note) + '</div>' +
+        '</button>'
+      );
+    }).join('');
+
+    galleryEl.querySelectorAll('[data-map-id]').forEach(button => {
+      button.addEventListener('click', function() {
+        const mapId = button.getAttribute('data-map-id');
+        if (!mapId) return;
+        selectedMapId = mapId;
+        renderMapsPanel();
+      });
+    });
   }
 
   function renderNpcRecapUpdates() {
@@ -2928,6 +3338,7 @@
     renderNpcRecapUpdates();
     renderRecentRecaps();
     renderOverview();
+    renderMapsPanel();
     updateHeaderFromRecaps();
   }
 
@@ -2950,6 +3361,7 @@
     const exportCampaignBtn = document.getElementById('export-campaign-json');
     const importCampaignBtn = document.getElementById('import-campaign-json');
     const loadRepoCampaignBtn = document.getElementById('load-repo-campaign-json');
+    const connectCampaignBtn = document.getElementById('connect-campaign-sync');
     const importCampaignInput = document.getElementById('import-campaign-json-file');
 
     if (saveBtn) saveBtn.addEventListener('click', handleSaveNote);
@@ -3055,6 +3467,10 @@
     if (loadRepoCampaignBtn) {
       loadRepoCampaignBtn.addEventListener('click', loadRepoCampaignJson);
     }
+
+    if (connectCampaignBtn) {
+      connectCampaignBtn.addEventListener('click', connectCampaignRepoSync);
+    }
   }
 
   populateQuestSelect();
@@ -3070,6 +3486,7 @@
   resetLoreForm();
   resetRecapForm();
   renderAll();
+  restoreCampaignRepoSync();
 </script>
 
 </body>

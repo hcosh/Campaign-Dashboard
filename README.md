@@ -107,6 +107,14 @@ Each quest has a status selector in the **Quests** tab:
 
 Quest state is saved in local storage and shown as a badge on each quest card.
 
+## Maps
+
+Use the **Maps** tab to view map images stored in the repo.
+
+- The dashboard currently loads repo-root image files directly, starting with the Thundertree player map.
+- Open the tab from a local server so the browser can load the image files reliably.
+- To add more maps, place the image file in the repo and register it in the dashboard's map library.
+
 ## Auto-Matching Rules
 
 Assignment happens in this order:
@@ -135,6 +143,9 @@ Also recommended:
 
 Use repository sync to share campaign state with other people using this dashboard.
 
+You can also connect the dashboard directly to the repo file so changes write back automatically.
+That browser-based auto sync requires a File System Access capable browser such as Chrome or Edge, and it works best when the app is opened from `http://localhost`.
+
 ### Files
 
 - Shared file in repo root: `campaign-shared.json`
@@ -146,6 +157,7 @@ In the **Recaps** tab under **Campaign Sync (Shared JSON)**:
 - `Export Shared JSON`: exports all shared dashboard state as `campaign-shared.json`.
 - `Import Shared JSON`: imports a shared campaign bundle from disk.
 - `Load Repo JSON`: loads `campaign-shared.json` from the current folder via HTTP.
+- `Connect Auto Sync`: picks `campaign-shared.json` once and keeps writing changes back to it automatically.
 
 ### What is included in shared campaign JSON
 
@@ -170,6 +182,8 @@ In the **Recaps** tab under **Campaign Sync (Shared JSON)**:
    git push
    ```
 5. Other users pull and click `Load Repo JSON` to sync locally.
+
+If you use `Connect Auto Sync`, you only need to choose the repo file once per browser profile; after that, saves from the dashboard update `campaign-shared.json` automatically.
 
 Note: `Load Repo JSON` requires running from a local server (for example `python3 -m http.server 8080`), not opening the HTML directly from Finder.
 
